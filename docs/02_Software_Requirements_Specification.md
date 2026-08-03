@@ -157,3 +157,186 @@ The document is organized into the following major sections:
 - Appendices
 
 This SRS serves as the single source of truth for the project and provides the baseline for architecture, implementation, testing, deployment, and future maintenance.
+
+
+# 2. Product Overview
+
+## 2.1 Product Perspective
+
+CaseMind is an AI-Powered Enterprise Customer Support Intelligence Platform designed to augment existing customer support systems by introducing Artificial Intelligence, Machine Learning, Natural Language Processing (NLP), Retrieval-Augmented Generation (RAG), and Organizational Knowledge Management.
+
+Unlike conventional helpdesk systems that primarily manage ticket workflows, CaseMind focuses on extracting intelligence from customer interactions and transforming historical support cases into reusable organizational knowledge.
+
+The platform is intended to integrate with enterprise support processes and provide intelligent assistance to support agents, engineering teams, customer success teams, and management.
+
+CaseMind is designed as a modular, cloud-ready application with clearly separated business modules, making it maintainable, scalable, and extensible for future enterprise requirements.
+
+---
+
+## 2.2 Product Vision
+
+The vision of CaseMind is to become an enterprise knowledge intelligence platform that enables organizations to resolve customer issues faster by learning continuously from every resolved support case.
+
+Instead of treating support tickets as isolated events, CaseMind builds a continuously growing Organizational Memory Engine where each resolved case contributes to the organization's collective knowledge.
+
+The platform aims to improve operational efficiency by combining AI-powered decision support with structured organizational learning, allowing enterprises to reduce repetitive investigations, improve support consistency, and preserve institutional knowledge.
+
+---
+
+## 2.3 Business Objectives
+
+The primary business objectives of CaseMind are:
+
+- Reduce average ticket resolution time.
+- Improve first-contact resolution rates.
+- Reduce duplicate investigations by identifying similar historical issues.
+- Automatically classify support tickets into predefined categories.
+- Predict ticket priority to assist support teams in workload management.
+- Analyze customer sentiment to identify urgent or dissatisfied customers.
+- Recommend historical resolutions using semantic similarity.
+- Discover recurring root causes across support cases.
+- Build an Organizational Memory Engine from resolved tickets.
+- Enable semantic search across company documentation using RAG.
+- Provide analytics and operational insights for support managers.
+- Monitor AI model performance and continuously improve prediction quality.
+- Support scalable deployment using modern cloud-native technologies.
+
+---
+
+## 2.4 Success Metrics (Key Performance Indicators)
+
+The success of CaseMind will be evaluated using measurable business and technical metrics.
+
+### Business KPIs
+
+| KPI | Target |
+|------|--------|
+| Average Resolution Time Reduction | ≥ 30% |
+| Duplicate Investigation Reduction | ≥ 40% |
+| First Contact Resolution Improvement | ≥ 20% |
+| Support Agent Productivity Increase | ≥ 25% |
+| Knowledge Reuse Rate | ≥ 50% |
+
+### AI Performance KPIs
+
+| Metric | Target |
+|---------|--------|
+| Ticket Classification Accuracy | ≥ 90% |
+| Priority Prediction Accuracy | ≥ 85% |
+| Sentiment Analysis F1 Score | ≥ 90% |
+| Duplicate Detection Precision | ≥ 90% |
+| RAG Retrieval Precision@5 | ≥ 85% |
+
+### System KPIs
+
+| Metric | Target |
+|---------|--------|
+| API Response Time | < 300 ms (excluding AI inference) |
+| AI Inference Time | < 2 seconds |
+| System Availability | 99.9% |
+| Successful Document Processing | ≥ 99% |
+| Authentication Success Rate | ≥ 99.9% |
+
+---
+
+## 2.5 Stakeholders
+
+The following stakeholders interact with or are affected by the CaseMind platform.
+
+### Support Agent
+
+**Responsibilities**
+
+- Manage customer support tickets.
+- View AI-generated recommendations.
+- Resolve customer issues.
+- Contribute engineer notes and resolutions.
+
+**Goals**
+
+- Resolve issues quickly.
+- Reduce repetitive work.
+- Improve response quality.
+
+---
+
+### Support Manager
+
+**Responsibilities**
+
+- Monitor team performance.
+- Analyze ticket trends.
+- Track SLA compliance.
+- Review operational analytics.
+
+**Goals**
+
+- Improve team productivity.
+- Reduce response times.
+- Identify recurring operational issues.
+
+---
+
+### Engineering Team
+
+**Responsibilities**
+
+- Investigate technical issues.
+- Validate AI-generated root causes.
+- Maintain product knowledge.
+- Update technical documentation.
+
+**Goals**
+
+- Reduce repeated investigations.
+- Preserve engineering knowledge.
+- Improve product quality.
+
+---
+
+### Product Manager
+
+**Responsibilities**
+
+- Analyze customer pain points.
+- Monitor feature-related issues.
+- Prioritize product improvements.
+
+**Goals**
+
+- Understand customer feedback.
+- Identify recurring product defects.
+- Improve customer satisfaction.
+
+---
+
+### Customer Success Team
+
+**Responsibilities**
+
+- Monitor customer health.
+- Identify dissatisfied customers.
+- Review sentiment analytics.
+
+**Goals**
+
+- Improve customer retention.
+- Enhance customer experience.
+
+---
+
+### System Administrator
+
+**Responsibilities**
+
+- Manage users and permissions.
+- Configure system settings.
+- Monitor infrastructure.
+- Manage deployments.
+- Review logs and system health.
+
+**Goals**
+
+- Maintain system availability.
+- Ensure platform security.
+- Support operational reliability.
