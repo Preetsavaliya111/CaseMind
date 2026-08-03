@@ -340,3 +340,452 @@ The following stakeholders interact with or are affected by the CaseMind platfor
 - Maintain system availability.
 - Ensure platform security.
 - Support operational reliability.
+
+
+# 3. Overall Description
+
+## 3.1 Product Functions
+
+CaseMind provides an integrated platform for managing customer support operations using Artificial Intelligence, Machine Learning, Natural Language Processing (NLP), Retrieval-Augmented Generation (RAG), and Organizational Knowledge Management.
+
+The major functions of the system include:
+
+### User & Access Management
+- User Registration
+- Secure Authentication
+- JWT-based Authorization
+- Role-Based Access Control (RBAC)
+- User Profile Management
+
+### Ticket Management
+- Create Support Tickets
+- Update Ticket Status
+- Assign Tickets
+- Ticket Search and Filtering
+- Ticket History Management
+- Ticket Comments and Attachments
+
+### AI Ticket Intelligence
+- Automatic Ticket Classification
+- Priority Prediction
+- Customer Sentiment Analysis
+- Duplicate Ticket Detection
+- Resolution Time Prediction
+- Root Cause Identification
+
+### Organizational Memory Engine
+- Extract knowledge from resolved tickets
+- Store historical resolutions
+- Build reusable organizational knowledge
+- Link related tickets
+- Preserve engineer notes
+- Calculate knowledge confidence scores
+
+### Knowledge Base
+- Upload company documents
+- Manage FAQs
+- Store Standard Operating Procedures (SOPs)
+- Manage Product Documentation
+- Version documentation
+
+### RAG (Retrieval-Augmented Generation)
+- Document Processing
+- Text Chunking
+- Embedding Generation
+- Semantic Search
+- Citation Generation
+- AI-powered Question Answering
+
+### Analytics Dashboard
+- Ticket Analytics
+- Team Performance Metrics
+- AI Model Performance
+- Trend Analysis
+- Root Cause Analytics
+- Knowledge Usage Analytics
+
+### Administration
+- User Management
+- Role Management
+- System Configuration
+- AI Configuration
+- Model Monitoring
+- Audit Logs
+
+---
+
+## 3.2 User Classes
+
+The system supports multiple categories of users with different responsibilities and permissions.
+
+### Support Agent
+Primary users responsible for handling customer support tickets, reviewing AI recommendations, communicating with customers, and resolving issues.
+
+### Support Manager
+Responsible for monitoring team performance, workload distribution, SLA compliance, and operational reporting.
+
+### Engineering Team
+Investigates technical issues, validates AI-generated root causes, contributes technical knowledge, and maintains engineering documentation.
+
+### Product Manager
+Analyzes customer feedback, recurring issues, feature requests, and product quality trends.
+
+### Customer Success Team
+Monitors customer satisfaction, analyzes sentiment trends, and proactively identifies customers requiring additional support.
+
+### System Administrator
+Manages users, permissions, security policies, infrastructure settings, deployments, backups, and overall platform administration.
+
+---
+
+## 3.3 Operating Environment
+
+CaseMind is designed as a cloud-ready, containerized web application.
+
+### Client Environment
+- Modern Web Browser
+- Google Chrome
+- Mozilla Firefox
+- Microsoft Edge
+- Safari
+
+### Frontend Environment
+- React
+- TypeScript
+- Tailwind CSS
+- React Query
+- React Router
+
+### Backend Environment
+- FastAPI
+- Python 3.12+
+- SQLAlchemy
+- Alembic
+
+### Database Environment
+- PostgreSQL
+
+### Vector Database
+- Qdrant
+
+### AI Environment
+- Scikit-learn
+- Transformers
+- Sentence Transformers
+- spaCy
+- LangChain
+- LlamaIndex
+
+### Infrastructure
+- Docker
+- Docker Compose
+- Nginx
+- Linux Server
+- GitHub Actions
+
+---
+
+## 3.4 Design Constraints
+
+The following constraints influence the design and implementation of CaseMind.
+
+### Technical Constraints
+
+- The backend shall be implemented using FastAPI.
+- PostgreSQL shall be the primary relational database.
+- Qdrant shall be used as the vector database.
+- Docker shall be used for containerization.
+- JWT shall be used for authentication.
+- REST APIs shall be used for communication between frontend and backend.
+- Machine learning models shall be implemented using Python.
+
+### Business Constraints
+
+- The platform shall support enterprise customer support workflows.
+- AI recommendations shall always be explainable where possible.
+- Sensitive customer information shall be protected.
+- The platform shall support future scalability.
+
+### Development Constraints
+
+- Clean Architecture shall be followed.
+- SOLID principles shall be applied.
+- Repository Pattern shall be implemented.
+- Service Layer Architecture shall be used.
+- Unit tests shall be written for critical components.
+- Environment variables shall be used for configuration.
+
+---
+
+## 3.5 Assumptions
+
+The following assumptions are made during system design.
+
+- Organizations maintain historical support ticket data.
+- Company documentation is available for knowledge extraction.
+- Users have basic technical knowledge required to operate enterprise software.
+- Reliable internet connectivity is available.
+- AI models can be periodically retrained using updated datasets.
+- Support teams are willing to review AI-generated recommendations before taking action.
+- Organizations permit storage of support knowledge within the platform.
+
+---
+
+## 3.6 Dependencies
+
+CaseMind depends on several external technologies and services.
+
+### Software Dependencies
+
+- Python 3.12+
+- PostgreSQL
+- Qdrant
+- Redis
+- Docker
+- Git
+- GitHub
+
+### AI Dependencies
+
+- Hugging Face Transformers
+- Sentence Transformers
+- spaCy
+- LangChain
+- LlamaIndex
+
+### Infrastructure Dependencies
+
+- Docker Engine
+- Docker Compose
+- Nginx
+- GitHub Actions
+
+### External Services (Future)
+
+- OpenAI API
+- Azure OpenAI
+- Anthropic Claude
+- Google Gemini
+- Enterprise Identity Providers (OAuth, SSO)
+- Cloud Object Storage
+
+
+# 4. Functional Requirements
+
+## Introduction
+
+This section defines the functional requirements of the CaseMind platform. Each requirement specifies the expected behavior of the system from a business and technical perspective.
+
+Each functional requirement includes:
+
+- Requirement ID
+- Description
+- Business Justification
+- Actors
+- Preconditions
+- Main Flow
+- Alternate Flow
+- Postconditions
+- Business Rules
+- Acceptance Criteria
+- Priority
+- Dependencies
+
+---
+
+# FR-001 User Authentication
+
+## Requirement ID
+
+FR-001
+
+## Requirement Name
+
+User Authentication
+
+## Description
+
+The system shall provide secure authentication for all registered users using email and password credentials. Upon successful authentication, the system shall issue a JSON Web Token (JWT) that enables access to authorized resources based on the user's assigned role.
+
+Authentication shall be mandatory before accessing any protected functionality within the platform.
+
+---
+
+## Business Justification
+
+Authentication ensures that only authorized users can access sensitive customer support data, AI services, and administrative functions. It provides the foundation for secure enterprise operations and protects organizational information.
+
+---
+
+## Actors
+
+- Support Agent
+- Support Manager
+- Engineering Team
+- Product Manager
+- Customer Success Team
+- System Administrator
+
+---
+
+## Preconditions
+
+- User account exists.
+- User account is active.
+- User has valid login credentials.
+
+---
+
+## Main Flow
+
+1. User navigates to the login page.
+2. User enters email address.
+3. User enters password.
+4. User submits login request.
+5. System validates credentials.
+6. System verifies account status.
+7. System generates JWT access token.
+8. System generates refresh token.
+9. User is redirected to the dashboard.
+
+---
+
+## Alternate Flow
+
+### Invalid Credentials
+
+- System displays an authentication error.
+- Login request is rejected.
+- Failed login attempt is recorded.
+
+### Inactive Account
+
+- System denies access.
+- User is instructed to contact the system administrator.
+
+---
+
+## Postconditions
+
+- User session is established.
+- JWT token is issued.
+- Authentication event is recorded in audit logs.
+
+---
+
+## Business Rules
+
+- Passwords shall never be stored in plain text.
+- Passwords shall be hashed using a secure algorithm.
+- JWT tokens shall expire after a configurable duration.
+- Refresh tokens shall support secure session renewal.
+- Multiple failed login attempts shall trigger temporary account lockout.
+
+---
+
+## Acceptance Criteria
+
+- Valid users can successfully log in.
+- Invalid credentials are rejected.
+- JWT token is generated after successful login.
+- Audit logs record authentication events.
+- Passwords remain encrypted in storage.
+
+---
+
+## Priority
+
+High
+
+---
+
+## Dependencies
+
+- User Management Module
+- JWT Authentication Service
+- PostgreSQL Database
+- Logging Service
+
+---
+
+# FR-002 User Logout
+
+## Requirement ID
+
+FR-002
+
+## Requirement Name
+
+User Logout
+
+## Description
+
+The system shall allow authenticated users to securely terminate their active session.
+
+---
+
+## Business Justification
+
+Secure logout prevents unauthorized access to user accounts and protects sensitive organizational data.
+
+---
+
+## Actors
+
+All authenticated users.
+
+---
+
+## Preconditions
+
+- User is logged in.
+
+---
+
+## Main Flow
+
+1. User clicks Logout.
+2. System invalidates the refresh token.
+3. Local authentication data is removed.
+4. User is redirected to the login page.
+
+---
+
+## Alternate Flow
+
+- If the session has already expired, the system redirects the user to the login page.
+
+---
+
+## Postconditions
+
+- User session is terminated.
+- Refresh token becomes invalid.
+
+---
+
+## Business Rules
+
+- Logout shall invalidate all active authentication tokens.
+- Protected resources shall no longer be accessible.
+
+---
+
+## Acceptance Criteria
+
+- User is successfully logged out.
+- Protected endpoints reject the invalidated token.
+- User is redirected to the login page.
+
+---
+
+## Priority
+
+High
+
+---
+
+## Dependencies
+
+- Authentication Service
+- JWT Token Management
