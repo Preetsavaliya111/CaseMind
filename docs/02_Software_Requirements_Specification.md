@@ -789,3 +789,749 @@ High
 
 - Authentication Service
 - JWT Token Management
+
+# FR-003 Password Reset
+
+## Requirement ID
+
+FR-003
+
+## Requirement Name
+
+Password Reset
+
+## Description
+
+The system shall allow registered users to securely reset their password if they forget their login credentials. A secure password reset link shall be sent to the user's registered email address with a configurable expiration time.
+
+---
+
+## Business Justification
+
+Allows users to regain account access securely without administrator intervention while minimizing the risk of unauthorized password changes.
+
+---
+
+## Actors
+
+- All Registered Users
+
+---
+
+## Preconditions
+
+- User account exists.
+- Registered email address is valid.
+
+---
+
+## Main Flow
+
+1. User selects "Forgot Password".
+2. User enters registered email.
+3. System verifies account.
+4. System generates secure reset token.
+5. Email containing reset link is sent.
+6. User opens reset link.
+7. User enters new password.
+8. System validates password policy.
+9. Password is updated.
+10. Previous sessions are invalidated.
+
+---
+
+## Alternate Flow
+
+- Invalid email
+- Expired reset token
+- Already used token
+
+---
+
+## Postconditions
+
+- Password updated successfully.
+- Previous sessions terminated.
+- Audit log created.
+
+---
+
+## Business Rules
+
+- Reset links expire after 15 minutes.
+- Token can only be used once.
+- Password cannot match previous five passwords.
+- Password must satisfy complexity policy.
+
+---
+
+## Acceptance Criteria
+
+- Valid reset link updates password.
+- Expired links are rejected.
+- Previous sessions are terminated.
+
+---
+
+## Priority
+
+High
+
+---
+
+## Dependencies
+
+Authentication Service
+
+Email Service
+
+Audit Logging
+
+---
+
+# FR-004 Change Password
+
+## Requirement ID
+
+FR-004
+
+## Requirement Name
+
+Change Password
+
+## Description
+
+Authenticated users shall be able to change their password after verifying their current password.
+
+---
+
+## Business Justification
+
+Improves account security and allows periodic password updates.
+
+---
+
+## Actors
+
+All Authenticated Users
+
+---
+
+## Preconditions
+
+- User is authenticated.
+
+---
+
+## Main Flow
+
+1. Open Profile Settings.
+2. Enter current password.
+3. Enter new password.
+4. Confirm new password.
+5. System validates password.
+6. Password updated.
+7. Existing sessions invalidated.
+
+---
+
+## Business Rules
+
+- Current password must match.
+- New password cannot match previous passwords.
+- Password policy enforced.
+
+---
+
+## Acceptance Criteria
+
+- Password updated successfully.
+- Invalid current password rejected.
+- User notified after password change.
+
+---
+
+## Priority
+
+High
+
+---
+
+## Dependencies
+
+Authentication Module
+
+Audit Logs
+
+---
+
+# FR-005 User Registration (Administrator Controlled)
+
+## Requirement ID
+
+FR-005
+
+## Requirement Name
+
+Administrator Controlled User Registration
+
+## Description
+
+The platform shall allow only authorized administrators to create new user accounts.
+
+Public self-registration shall not be available.
+
+---
+
+## Business Justification
+
+Enterprise systems require centralized identity management to ensure security and governance.
+
+---
+
+## Actors
+
+System Administrator
+
+---
+
+## Preconditions
+
+Administrator authenticated.
+
+---
+
+## Main Flow
+
+1. Administrator opens User Management.
+2. Clicks Create User.
+3. Enters user information.
+4. Assigns role.
+5. System validates information.
+6. User account created.
+7. Welcome email sent.
+
+---
+
+## Business Rules
+
+- Email addresses must be unique.
+- Role assignment mandatory.
+- Temporary password generated.
+- User must change password on first login.
+
+---
+
+## Acceptance Criteria
+
+- Administrator creates users.
+- Duplicate emails rejected.
+- New user receives activation email.
+
+---
+
+## Priority
+
+High
+
+---
+
+## Dependencies
+
+RBAC Module
+
+Email Service
+
+User Management Module
+
+---
+
+# FR-006 JWT Token Refresh
+
+## Requirement ID
+
+FR-006
+
+## Requirement Name
+
+Refresh Access Token
+
+## Description
+
+The system shall automatically issue a new access token using a valid refresh token without requiring the user to log in again.
+
+---
+
+## Business Justification
+
+Improves user experience while maintaining secure authentication.
+
+---
+
+## Actors
+
+Authenticated Users
+
+---
+
+## Business Rules
+
+- Refresh tokens expire after configurable duration.
+- Invalid refresh tokens rejected.
+- Compromised tokens revoked immediately.
+
+---
+
+## Acceptance Criteria
+
+- Valid refresh token generates new access token.
+- Expired refresh token rejected.
+
+---
+
+## Priority
+
+High
+
+---
+
+## Dependencies
+
+JWT Service
+
+Authentication Service
+
+---
+
+# FR-007 Role-Based Access Control (RBAC)
+
+## Requirement ID
+
+FR-007
+
+## Requirement Name
+
+Role-Based Access Control
+
+## Description
+
+The platform shall restrict access to features based on assigned user roles and permissions.
+
+---
+
+## Business Justification
+
+Ensures users only access resources required for their responsibilities.
+
+---
+
+## Roles
+
+- Support Agent
+- Support Manager
+- Engineering Team
+- Product Manager
+- Customer Success
+- Administrator
+
+---
+
+## Business Rules
+
+- Every user has at least one role.
+- Roles determine accessible APIs.
+- Unauthorized requests return HTTP 403.
+
+---
+
+## Acceptance Criteria
+
+- Authorized users access resources.
+- Unauthorized requests denied.
+- Permission changes effective immediately.
+
+---
+
+## Priority
+
+Critical
+
+---
+
+## Dependencies
+
+Authentication Module
+
+Authorization Middleware
+
+---
+
+# FR-008 Session Management
+
+## Requirement ID
+
+FR-008
+
+## Requirement Name
+
+Session Management
+
+## Description
+
+The system shall securely manage authenticated user sessions across devices.
+
+---
+
+## Business Justification
+
+Improves security while allowing administrators to monitor active sessions.
+
+---
+
+## Features
+
+- Session Timeout
+- Active Session List
+- Device Tracking
+- Force Logout
+- Session Revocation
+
+---
+
+## Business Rules
+
+- Sessions expire after inactivity.
+- Administrators can revoke sessions.
+- Password changes invalidate sessions.
+
+---
+
+## Acceptance Criteria
+
+- Sessions expire correctly.
+- Force logout works.
+- Expired sessions rejected.
+
+---
+
+## Priority
+
+High
+
+---
+
+## Dependencies
+
+Authentication Module
+
+JWT Service
+
+Audit Logs
+
+# FR-009 User Management
+
+## Requirement ID
+
+FR-009
+
+## Requirement Name
+
+User Management
+
+---
+
+## Description
+
+The CaseMind platform shall provide a comprehensive User Management module that enables authorized administrators to create, manage, update, search, deactivate, and assign roles to users within the organization.
+
+The module shall ensure secure identity management while enforcing Role-Based Access Control (RBAC), maintaining complete audit trails, and supporting organizational governance.
+
+The User Management module shall serve as the central authority for managing all platform users and their associated permissions.
+
+---
+
+## Business Justification
+
+Enterprise customer support platforms require centralized identity and access management to ensure operational security, compliance, accountability, and efficient administration.
+
+A robust User Management module minimizes security risks, simplifies onboarding and offboarding processes, and ensures users only have access to the resources necessary for their responsibilities.
+
+---
+
+## Primary Actors
+
+- System Administrator
+- Support Manager
+
+---
+
+## Secondary Actors
+
+- Support Agent
+- Engineering Team
+- Product Manager
+- Customer Success Team
+
+---
+
+## Functional Capabilities
+
+The User Management module shall provide the following capabilities:
+
+### UC-009.1 User Creation
+
+Authorized administrators shall be able to create new user accounts.
+
+The administrator shall specify:
+
+- Full Name
+- Email Address
+- Employee ID (optional)
+- Department
+- Designation
+- Assigned Role
+- Account Status
+
+The system shall automatically generate a temporary password and send an account activation email.
+
+---
+
+### UC-009.2 User Profile Management
+
+Authenticated users shall be able to view and update their personal profile information.
+
+Editable fields include:
+
+- Name
+- Profile Picture
+- Phone Number
+- Department
+- Time Zone
+- Preferred Language
+
+Certain fields such as Email Address and Assigned Role shall only be editable by administrators.
+
+---
+
+### UC-009.3 User Search
+
+Administrators shall be able to search users using:
+
+- Name
+- Email
+- Department
+- Role
+- Status
+- Employee ID
+
+The search shall support filtering, sorting, and pagination.
+
+---
+
+### UC-009.4 User Update
+
+Administrators shall be able to modify user information.
+
+Examples include:
+
+- Department Transfer
+- Role Change
+- Phone Number Update
+- Name Correction
+- Status Update
+
+Every modification shall generate an audit log.
+
+---
+
+### UC-009.5 User Activation & Deactivation
+
+Administrators shall be able to activate or deactivate user accounts.
+
+A deactivated user:
+
+- Cannot log in.
+- Cannot access APIs.
+- Retains historical ownership of tickets.
+- Appears as "Inactive" in reports.
+
+---
+
+### UC-009.6 Role Assignment
+
+Administrators shall assign one or more organizational roles to users.
+
+Supported roles include:
+
+- Support Agent
+- Support Manager
+- Engineering Team
+- Product Manager
+- Customer Success
+- System Administrator
+
+Future custom roles shall be supported.
+
+---
+
+### UC-009.7 User Activity History
+
+Administrators shall be able to view:
+
+- Last Login
+- Failed Login Attempts
+- Active Sessions
+- Password Changes
+- Account Creation Date
+- Role History
+- Status Changes
+
+---
+
+## Preconditions
+
+- Administrator is authenticated.
+- Administrator has User Management permission.
+- Organization has valid RBAC configuration.
+
+---
+
+## Main Workflow
+
+1. Administrator opens User Management.
+2. Administrator selects an operation.
+3. System validates permissions.
+4. Requested action is performed.
+5. Audit log is generated.
+6. User receives notification (if applicable).
+7. Updated information is reflected across the platform.
+
+---
+
+## Alternate Workflow
+
+### Duplicate Email
+
+The system rejects duplicate email addresses.
+
+---
+
+### Invalid Role
+
+The system prevents assignment of undefined roles.
+
+---
+
+### Unauthorized Operation
+
+Users without administrative privileges receive an HTTP 403 Forbidden response.
+
+---
+
+## Postconditions
+
+- User information is updated successfully.
+- Audit logs are generated.
+- Notifications are sent where applicable.
+- RBAC permissions are refreshed immediately.
+
+---
+
+## Business Rules
+
+### BR-009-01
+
+Each email address shall be unique.
+
+---
+
+### BR-009-02
+
+Every user must have at least one assigned role.
+
+---
+
+### BR-009-03
+
+Only System Administrators may deactivate users.
+
+---
+
+### BR-009-04
+
+Deleted users shall not be physically removed from the database.
+
+Soft deletion shall be used to preserve historical references.
+
+---
+
+### BR-009-05
+
+Every administrative action shall generate an immutable audit record.
+
+---
+
+### BR-009-06
+
+Inactive users shall not authenticate.
+
+---
+
+### BR-009-07
+
+Changes to user roles shall take effect immediately.
+
+---
+
+## Validation Rules
+
+- Email format validation
+- Password policy enforcement
+- Mandatory Name
+- Mandatory Role
+- Unique Email
+- Maximum profile image size
+- Valid phone number format
+
+---
+
+## Security Requirements
+
+- RBAC enforced on every endpoint.
+- All administrative actions logged.
+- Personally Identifiable Information (PII) protected.
+- Sensitive fields encrypted where appropriate.
+- Session validation required for every operation.
+
+---
+
+## Acceptance Criteria
+
+The module shall be considered complete when:
+
+- Administrators can create users.
+- Administrators can edit users.
+- Administrators can deactivate users.
+- Duplicate emails are rejected.
+- User search functions correctly.
+- Role assignment functions correctly.
+- Audit logs are generated.
+- Unauthorized requests are denied.
+- Soft deletion preserves historical data.
+- Profile updates are reflected immediately.
+
+---
+
+## Priority
+
+Critical
+
+---
+
+## Dependencies
+
+- Authentication Module
+- RBAC Module
+- Notification Service
+- Audit Logging Module
+- PostgreSQL Database
