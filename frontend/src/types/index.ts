@@ -11,4 +11,5 @@ export type {
 export type { OrganizationalMemory, MemoryEvidence, MemoryImpact, MemoryMatchResult } from './memory'
 export type { MessageRole, SourceType, CitationSource, ChatMessage, ChatSession, ChatSendRequest, ChatSendResponse } from './chat'
 export type { ModelStatus, ExperimentStatus, ModelMetricPoint, ModelHealth, ModelConfig, ModelExperiment, IngestionStatus, IngestionJob } from './admin'
+export type { AppNotification, NotificationType, NotificationPriority } from './notification'
 

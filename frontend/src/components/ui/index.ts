@@ -10,4 +10,5 @@ export { Dialog, DialogTrigger, DialogPortal, DialogClose, DialogOverlay, Dialog
 export { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuCheckboxItem, DropdownMenuRadioItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuGroup, DropdownMenuPortal, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuRadioGroup } from './DropdownMenu'
 export { Skeleton, SkeletonCard, SkeletonTable } from './Skeleton'
 export { Progress } from './Progress'
+export { Popover, PopoverTrigger, PopoverContent, PopoverAnchor } from './Popover'
 export { ToastProvider, ToastViewport, Toast, ToastClose, ToastTitle, ToastDescription } from './Toast'

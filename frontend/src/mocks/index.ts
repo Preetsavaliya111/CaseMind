@@ -5,4 +5,5 @@ export { mockKnowledgeArticles } from './knowledge'
 export { mockMemoryRecords } from './memory'
 export { mockModels, mockExperiments, mockIngestionJobs } from './admin'
 export { mockChatSessions, mockChatMessages } from './chat'
+export { initialMockNotifications } from './notifications'
 
