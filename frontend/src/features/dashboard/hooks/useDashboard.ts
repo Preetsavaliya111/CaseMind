@@ -7,6 +7,7 @@ export const dashboardKeys = {
   trends: () => [...dashboardKeys.all, 'trends'] as const,
   categories: () => [...dashboardKeys.all, 'categories'] as const,
   agentPerformance: () => [...dashboardKeys.all, 'agent-performance'] as const,
+  myPerformance: () => [...dashboardKeys.all, 'my-performance'] as const,
 }
 
 export function useDashboardMetrics() {
@@ -34,5 +35,12 @@ export function useAgentPerformance() {
   return useQuery({
     queryKey: dashboardKeys.agentPerformance(),
     queryFn: dashboardService.getAgentPerformance,
+  })
+}
+
+export function useMyPerformance() {
+  return useQuery({
+    queryKey: dashboardKeys.myPerformance(),
+    queryFn: dashboardService.getMyPerformance,
   })
 }

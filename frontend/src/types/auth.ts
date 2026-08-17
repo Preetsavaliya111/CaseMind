@@ -1,4 +1,14 @@
-export type UserRole = 'admin' | 'manager' | 'agent' | 'viewer'
+/**
+ * Six named roles from the spec.
+ * admin       = System Administrator
+ * manager     = Support Manager
+ * agent       = Support Agent
+ * engineer    = Engineering Team
+ * product     = Product Manager
+ * cs          = Customer Success
+ * viewer      = read-only (legacy, kept for compat)
+ */
+export type UserRole = 'admin' | 'manager' | 'agent' | 'engineer' | 'product' | 'cs' | 'viewer'
 
 export interface User {
   id: string

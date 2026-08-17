@@ -68,4 +68,5 @@ export interface Ticket {
   closedAt?: string
   slaDeadline?: string
   slaBreached: boolean
+  slaState: 'healthy' | 'at_risk' | 'breached'
 }

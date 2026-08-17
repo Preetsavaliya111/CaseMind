@@ -50,6 +50,28 @@ export default {
           accent: 'hsl(var(--sidebar-accent))',
           'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
         },
+        // Semantic tokens
+        success: {
+          DEFAULT: 'hsl(var(--color-success))',
+          foreground: 'hsl(0 0% 100%)',
+        },
+        warning: {
+          DEFAULT: 'hsl(var(--color-warning))',
+          foreground: 'hsl(0 0% 100%)',
+        },
+        danger: {
+          DEFAULT: 'hsl(var(--color-danger))',
+          foreground: 'hsl(0 0% 100%)',
+        },
+        info: {
+          DEFAULT: 'hsl(var(--color-info))',
+          foreground: 'hsl(0 0% 100%)',
+        },
+        // AI / Organizational Memory — purple accent (#8B5CF6)
+        ai: {
+          DEFAULT: 'hsl(var(--color-ai))',
+          foreground: 'hsl(0 0% 100%)',
+        },
       },
       borderRadius: {
         lg: 'var(--radius)',
@@ -58,10 +80,14 @@ export default {
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
+        display: ['Inter', 'system-ui', 'sans-serif'],
         mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
       },
       fontSize: {
         '2xs': ['0.625rem', { lineHeight: '0.875rem' }],
+      },
+      letterSpacing: {
+        display: '-0.02em',
       },
       spacing: {
         18: '4.5rem',

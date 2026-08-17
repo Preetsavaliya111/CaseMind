@@ -34,3 +34,31 @@ export function StatusBadge({ status }: { status: TicketStatus }) {
     </span>
   )
 }
+
+export function SLABadge({ state, breached }: { state?: 'healthy' | 'at_risk' | 'breached'; breached?: boolean }) {
+  const isBreached = breached || state === 'breached'
+  const isAtRisk = state === 'at_risk'
+
+  if (isBreached) {
+    return (
+      <Badge variant="critical" className="font-mono text-2xs uppercase tracking-wider">
+        SLA Breached
+      </Badge>
+    )
+  }
+
+  if (isAtRisk) {
+    return (
+      <Badge variant="warning" className="font-mono text-2xs uppercase tracking-wider">
+        SLA At Risk
+      </Badge>
+    )
+  }
+
+  return (
+    <Badge variant="secondary" className="font-mono text-2xs uppercase tracking-wider text-muted-foreground">
+      SLA Healthy
+    </Badge>
+  )
+}
+

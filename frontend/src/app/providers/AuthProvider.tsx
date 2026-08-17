@@ -1,6 +1,5 @@
 import { createContext, useContext, useState, useCallback, type ReactNode } from 'react'
 import type { User, AuthTokens } from '@/types'
-import { mockCurrentUser } from '@/mocks'
 
 interface AuthContextValue {
   user: User | null
@@ -12,8 +11,8 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | null>(null)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  // In mock mode, start as authenticated with mock user
-  const [user, setUser] = useState<User | null>(mockCurrentUser)
+  // Start unauthenticated — user must log in
+  const [user, setUser] = useState<User | null>(null)
 
   const login = useCallback((tokens: AuthTokens, user: User) => {
     localStorage.setItem('access_token', tokens.accessToken)

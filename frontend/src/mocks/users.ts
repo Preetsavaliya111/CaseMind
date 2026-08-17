@@ -3,7 +3,7 @@ import type { User } from '@/types'
 export const mockUsers: User[] = [
   {
     id: 'usr_001',
-    email: 'sarah.chen@casemind.io',
+    email: 'admin@casemind.io',
     name: 'Sarah Chen',
     role: 'admin',
     department: 'Engineering',
@@ -13,7 +13,7 @@ export const mockUsers: User[] = [
   },
   {
     id: 'usr_002',
-    email: 'james.wilson@casemind.io',
+    email: 'manager@casemind.io',
     name: 'James Wilson',
     role: 'manager',
     department: 'Customer Support',
@@ -23,7 +23,7 @@ export const mockUsers: User[] = [
   },
   {
     id: 'usr_003',
-    email: 'priya.sharma@casemind.io',
+    email: 'agent@casemind.io',
     name: 'Priya Sharma',
     role: 'agent',
     department: 'Customer Support',
@@ -43,7 +43,7 @@ export const mockUsers: User[] = [
   },
   {
     id: 'usr_005',
-    email: 'elena.rodriguez@casemind.io',
+    email: 'viewer@casemind.io',
     name: 'Elena Rodriguez',
     role: 'viewer',
     department: 'Product',
@@ -51,6 +51,47 @@ export const mockUsers: User[] = [
     createdAt: '2024-03-01T08:00:00Z',
     lastLoginAt: '2024-07-13T14:20:00Z',
   },
+  {
+    id: 'usr_006',
+    email: 'engineer@casemind.io',
+    name: 'Alex Kim',
+    role: 'engineer',
+    department: 'Engineering',
+    isActive: true,
+    createdAt: '2024-02-20T08:00:00Z',
+    lastLoginAt: '2024-07-15T11:00:00Z',
+  },
+  {
+    id: 'usr_007',
+    email: 'product@casemind.io',
+    name: 'Fatima Al-Hassan',
+    role: 'product',
+    department: 'Product',
+    isActive: true,
+    createdAt: '2024-03-10T08:00:00Z',
+    lastLoginAt: '2024-07-15T09:00:00Z',
+  },
+  {
+    id: 'usr_008',
+    email: 'cs@casemind.io',
+    name: 'David Park',
+    role: 'cs',
+    department: 'Customer Success',
+    isActive: true,
+    createdAt: '2024-03-15T08:00:00Z',
+    lastLoginAt: '2024-07-15T08:45:00Z',
+  },
 ]
+
+// Credential map — email → password
+export const mockCredentials: Record<string, string> = {
+  'admin@casemind.io':          'Admin@1234',
+  'manager@casemind.io':        'Manager@1234',
+  'agent@casemind.io':          'Agent@1234',
+  'viewer@casemind.io':         'Viewer@1234',
+  'engineer@casemind.io':       'Engineer@1234',
+  'product@casemind.io':        'Product@1234',
+  'cs@casemind.io':             'CS@1234',
+}
 
 export const mockCurrentUser = mockUsers[0]

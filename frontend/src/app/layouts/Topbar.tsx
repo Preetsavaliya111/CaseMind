@@ -1,6 +1,6 @@
-import { Bell, Search, Sun, Moon, LogOut, User } from 'lucide-react'
+import { Bell, Search, LogOut, User } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import { useAuth, useTheme } from '@/app/providers'
+import { useAuth } from '@/app/providers'
 import { Button, Avatar, AvatarFallback, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/ui'
 import { initials } from '@/utils'
 
@@ -10,7 +10,6 @@ interface TopbarProps {
 
 export function Topbar({ title }: TopbarProps) {
   const { user, logout } = useAuth()
-  const { resolvedTheme, setTheme } = useTheme()
   const navigate = useNavigate()
 
   return (
@@ -23,16 +22,6 @@ export function Topbar({ title }: TopbarProps) {
           <Search className="h-3.5 w-3.5" aria-hidden="true" />
           <span className="text-xs">Search…</span>
           <kbd className="ml-auto text-2xs bg-muted px-1.5 py-0.5 rounded font-mono">⌘K</kbd>
-        </Button>
-
-        {/* Theme toggle */}
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
-          aria-label="Toggle theme"
-        >
-          {resolvedTheme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
         </Button>
 
         {/* Notifications */}

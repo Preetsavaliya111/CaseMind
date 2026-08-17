@@ -21,7 +21,10 @@ function createApiClient(): AxiosInstance {
     async (error) => {
       if (error.response?.status === 401) {
         localStorage.removeItem('access_token')
-        window.location.href = '/login'
+        localStorage.removeItem('refresh_token')
+        if (window.location.pathname !== '/login') {
+          window.location.href = '/login?reason=expired'
+        }
       }
       const apiError: ApiError = {
         message: error.response?.data?.message ?? 'An unexpected error occurred',

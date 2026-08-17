@@ -3,44 +3,7 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 222 47% 11%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
-
-    --primary: 221 83% 53%;
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222 47% 11%;
-
-    --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 47%;
-
-    --accent: 210 40% 96%;
-    --accent-foreground: 222 47% 11%;
-
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 221 83% 53%;
-
-    --radius: 0.5rem;
-
-    --sidebar: 222 47% 11%;
-    --sidebar-foreground: 210 40% 96%;
-    --sidebar-border: 217 33% 17%;
-    --sidebar-accent: 217 33% 17%;
-    --sidebar-accent-foreground: 210 40% 96%;
-  }
-
+  :root,
   .dark {
     --background: 222 47% 7%;
     --foreground: 210 40% 96%;
@@ -70,11 +33,29 @@
     --input: 217 33% 17%;
     --ring: 221 83% 60%;
 
+    --radius: 0.5rem;
+
     --sidebar: 222 47% 5%;
     --sidebar-foreground: 210 40% 96%;
     --sidebar-border: 217 33% 12%;
     --sidebar-accent: 217 33% 12%;
     --sidebar-accent-foreground: 210 40% 96%;
+
+    /* Semantic tokens */
+    --color-success: 142 71% 45%;
+    --color-warning: 38 92% 50%;
+    --color-danger: 0 63% 50%;
+    --color-info: 199 89% 48%;
+    /* AI / Organizational Memory — purple accent */
+    --color-ai: 262 83% 58%;  /* #8B5CF6 */
+
+    /* Motion duration tokens */
+    --duration-fast: 120ms;
+    --duration-base: 200ms;
+    --duration-slow: 350ms;
+
+    /* Memory Pulse — driven by JS custom property */
+    --pulse-duration: 3s;
   }
 }
 
@@ -96,7 +77,6 @@
     @apply bg-primary/20;
   }
 
-  /* Scrollbar */
   ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
@@ -127,5 +107,28 @@
   }
   .scrollbar-none::-webkit-scrollbar {
     display: none;
+  }
+
+  /* Memory Pulse ring — speed set via --pulse-duration CSS var from JS */
+  .memory-pulse {
+    animation: pulse-ring var(--pulse-duration, 3s) ease-in-out infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .memory-pulse {
+      animation: none;
+      opacity: 0.4;
+    }
+  }
+}
+
+@keyframes pulse-ring {
+  0%, 100% {
+    opacity: 0.15;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.55;
+    transform: scale(1.18);
   }
 }

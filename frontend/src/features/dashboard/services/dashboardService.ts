@@ -1,5 +1,5 @@
-import type { DashboardMetrics, TicketTrend, CategoryDistribution, AgentPerformance } from '@/types'
-import { mockDashboardMetrics, mockTicketTrends, mockCategoryDistribution, mockAgentPerformance } from '@/mocks'
+import type { DashboardMetrics, TicketTrend, CategoryDistribution, AgentPerformance, MyPerformance } from '@/types'
+import { mockDashboardMetrics, mockTicketTrends, mockCategoryDistribution, mockAgentPerformance, mockMyPerformance } from '@/mocks'
 
 const delay = (ms: number) => new Promise((r) => setTimeout(r, ms))
 
@@ -22,5 +22,10 @@ export const dashboardService = {
   async getAgentPerformance(): Promise<AgentPerformance[]> {
     await delay(300)
     return mockAgentPerformance
+  },
+
+  async getMyPerformance(): Promise<MyPerformance> {
+    await delay(300)
+    return mockMyPerformance
   },
 }

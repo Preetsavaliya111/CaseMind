@@ -1,15 +1,21 @@
-import type { DashboardMetrics, TicketTrend, CategoryDistribution, AgentPerformance } from '@/types'
+import type { DashboardMetrics, TicketTrend, CategoryDistribution, AgentPerformance, MyPerformance } from '@/types'
 
 export const mockDashboardMetrics: DashboardMetrics = {
   totalTickets: 1284,
   openTickets: 87,
+  inProgressTickets: 42,
   resolvedToday: 34,
+  slaBreached: 3,
   avgResolutionTime: 4.2,
   slaBreachRate: 3.8,
   customerSatisfaction: 94.2,
   aiAcceptanceRate: 78.5,
   firstContactResolution: 67.3,
+  memoryMatchesToday: 18,
+  newMemoryRecordsToday: 4,
+  topMemoryPattern: 'Payment gateway connection pool exhaustion',
 }
+
 
 export const mockTicketTrends: TicketTrend[] = [
   { date: '2024-07-09', created: 42, resolved: 38, open: 91 },
@@ -36,3 +42,22 @@ export const mockAgentPerformance: AgentPerformance[] = [
   { agentId: 'usr_006', agentName: 'Alex Kim', resolved: 119, avgResolutionTime: 4.6, csat: 93.2, slaCompliance: 95.1 },
   { agentId: 'usr_007', agentName: 'Fatima Al-Hassan', resolved: 107, avgResolutionTime: 5.2, csat: 91.8, slaCompliance: 93.4 },
 ]
+
+export const mockMyPerformance: MyPerformance = {
+  resolvedThisWeek: 18,
+  resolvedThisMonth: 142,
+  avgResolutionTime: 3.8,
+  csat: 96.1,
+  csatTrend: 1.4,
+  slaCompliance: 98.2,
+  resolutionTrend: [
+    { date: '2024-07-09', value: 22 },
+    { date: '2024-07-10', value: 19 },
+    { date: '2024-07-11', value: 25 },
+    { date: '2024-07-12', value: 17 },
+    { date: '2024-07-13', value: 21 },
+    { date: '2024-07-14', value: 20 },
+    { date: '2024-07-15', value: 18 },
+  ],
+}
+

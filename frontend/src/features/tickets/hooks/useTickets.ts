@@ -46,3 +46,25 @@ export function useUpdateTicketStatus() {
     },
   })
 }
+
+export function useAddComment() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ ticketId, content, isInternal, authorName }: { ticketId: string; content: string; isInternal: boolean; authorName?: string }) =>
+      ticketService.addComment(ticketId, content, isInternal, authorName),
+    onSuccess: (_, { ticketId }) => {
+      queryClient.invalidateQueries({ queryKey: ticketKeys.detail(ticketId) })
+    },
+  })
+}
+
+export function useDeleteTicket() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => ticketService.deleteTicket(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ticketKeys.lists() })
+    },
+  })
+}
+

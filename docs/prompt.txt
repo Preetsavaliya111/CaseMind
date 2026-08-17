@@ -10,7 +10,7 @@ AI-Powered Enterprise Customer Support Intelligence Platform
 # PROJECT OVERVIEW
 
 We are building an enterprise-grade AI and MLOps platform called CaseMind.
-
+    
 This is NOT a college CRUD project.
 
 It should look and feel like an internal AI product used by companies such as Zendesk, Freshworks, Jira Service Management, or ServiceNow.

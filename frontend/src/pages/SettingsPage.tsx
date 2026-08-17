@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui'
 import { useAuth } from '@/app/providers'
 import { formatDate } from '@/utils'
-import { User, Shield, Bell, Palette } from 'lucide-react'
+import { User, Shield, Bell } from 'lucide-react'
 
 export function SettingsPage() {
   const { user } = useAuth()
@@ -91,18 +91,6 @@ export function SettingsPage() {
         </CardContent>
       </Card>
 
-      {/* Appearance */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Palette className="h-4 w-4" aria-hidden="true" />
-            Appearance
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground">Use the theme toggle in the top navigation bar to switch between light and dark mode.</p>
-        </CardContent>
-      </Card>
     </div>
   )
 }

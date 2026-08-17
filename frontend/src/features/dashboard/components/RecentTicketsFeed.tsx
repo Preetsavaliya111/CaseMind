@@ -1,6 +1,6 @@
 import { AlertTriangle, Clock } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import { Card, CardContent, CardHeader, CardTitle, Badge } from '@/components/ui'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui'
 import { PriorityBadge } from '@/components/common'
 import { formatRelative } from '@/utils'
 import type { Ticket } from '@/types'

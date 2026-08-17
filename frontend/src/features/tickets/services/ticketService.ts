@@ -65,9 +65,11 @@ export const ticketService = {
       comments: [],
       attachments: [],
       slaBreached: false,
+      slaState: 'healthy',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     }
+
     mockTickets.unshift(ticket)
     return ticket
   },
@@ -80,4 +82,31 @@ export const ticketService = {
     ticket.updatedAt = new Date().toISOString()
     return ticket
   },
+
+  async addComment(ticketId: string, content: string, isInternal: boolean, authorName: string = 'Sarah Chen'): Promise<Ticket> {
+    await delay(300)
+    const ticket = mockTickets.find((t) => t.id === ticketId)
+    if (!ticket) throw new Error(`Ticket ${ticketId} not found`)
+    const newComment = {
+      id: `cmt_${Date.now()}`,
+      ticketId,
+      authorId: 'usr_001',
+      authorName,
+      content,
+      isInternal,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    }
+    ticket.comments = [...ticket.comments, newComment]
+    ticket.updatedAt = new Date().toISOString()
+    return ticket
+  },
+
+  async deleteTicket(id: string): Promise<void> {
+    await delay(400)
+    const index = mockTickets.findIndex((t) => t.id === id)
+    if (index === -1) throw new Error(`Ticket ${id} not found`)
+    mockTickets.splice(index, 1)
+  },
 }
+

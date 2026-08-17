@@ -1,47 +1,26 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
-
-type Theme = 'light' | 'dark' | 'system'
+import { createContext, useContext, useEffect, type ReactNode } from 'react'
 
 interface ThemeContextValue {
-  theme: Theme
-  setTheme: (theme: Theme) => void
-  resolvedTheme: 'light' | 'dark'
+  resolvedTheme: 'dark'
 }
 
-const ThemeContext = createContext<ThemeContextValue | null>(null)
+const ThemeContext = createContext<ThemeContextValue>({ resolvedTheme: 'dark' })
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>(() => {
-    return (localStorage.getItem('theme') as Theme) ?? 'system'
-  })
-
-  const resolvedTheme: 'light' | 'dark' =
-    theme === 'system'
-      ? window.matchMedia('(prefers-color-scheme: dark)').matches
-        ? 'dark'
-        : 'light'
-      : theme
-
   useEffect(() => {
     const root = document.documentElement
-    root.classList.remove('light', 'dark')
-    root.classList.add(resolvedTheme)
-  }, [resolvedTheme])
-
-  const setTheme = (t: Theme) => {
-    localStorage.setItem('theme', t)
-    setThemeState(t)
-  }
+    root.classList.remove('light')
+    root.classList.add('dark')
+    localStorage.setItem('theme', 'dark')
+  }, [])
 
   return (
-    <ThemeContext.Provider value={{ theme, setTheme, resolvedTheme }}>
+    <ThemeContext.Provider value={{ resolvedTheme: 'dark' }}>
       {children}
     </ThemeContext.Provider>
   )
 }
 
 export function useTheme(): ThemeContextValue {
-  const ctx = useContext(ThemeContext)
-  if (!ctx) throw new Error('useTheme must be used within ThemeProvider')
-  return ctx
+  return useContext(ThemeContext)
 }
