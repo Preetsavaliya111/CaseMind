@@ -1,7 +1,7 @@
 import { NavLink, useLocation } from 'react-router-dom'
 import {
-  LayoutDashboard, Ticket, Database, BookOpen, BarChart3, MessageSquare,
-  Settings, Brain, ChevronLeft, ChevronRight, Cpu, Users,
+  LayoutDashboard, Ticket, Database, BookOpen, BarChart3,
+  Settings, Brain, ChevronLeft, ChevronRight, Cpu, Users, Sparkles
 } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
 import { cn } from '@/utils'
@@ -20,9 +20,9 @@ const mainNav: NavItem[] = [
   { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { to: '/tickets', icon: Ticket, label: 'Tickets', permission: 'tickets.view' },
   { to: '/memory', icon: Database, label: 'Org Memory', permission: 'memory.view' },
-  { to: '/knowledge', icon: BookOpen, label: 'Knowledge', permission: 'knowledge.view' },
+  { to: '/knowledge', icon: BookOpen, label: 'Knowledge Base', permission: 'knowledge.view' },
   { to: '/analytics', icon: BarChart3, label: 'Analytics', permission: 'analytics.view' },
-  { to: '/chat', icon: MessageSquare, label: 'AI Assistant', permission: 'chat.use' },
+  { to: '/assistant', icon: Sparkles, label: 'AI Assistant', permission: 'chat.use' },
   { to: '/settings', icon: Settings, label: 'Settings' },
 ]
 
@@ -31,16 +31,8 @@ const adminNav: NavItem[] = [
   { to: '/admin/users', icon: Users, label: 'User Management', permission: 'admin.users' },
 ]
 
-
-/**
- * Maps resolvedToday count to a pulse duration in seconds.
- * More resolutions → faster pulse (more memory being built).
- * Range: 1.2s (very active, 50+ resolved) to 4s (quiet, 1 resolved).
- * Returns null when resolvedToday === 0 (dormant — no pulse).
- */
 function getPulseDuration(resolvedToday: number): number | null {
   if (resolvedToday <= 0) return null
-  // Clamp to [1, 50], map to [4s, 1.2s] linearly
   const clamped = Math.min(Math.max(resolvedToday, 1), 50)
   const duration = 4 - ((clamped - 1) / 49) * 2.8
   return Math.round(duration * 100) / 100
@@ -55,7 +47,6 @@ export function Sidebar() {
 
   const pulseDuration = metrics ? getPulseDuration(metrics.resolvedToday) : null
 
-  // Drive --pulse-duration on the logo element so CSS animation speed reflects real data
   useEffect(() => {
     if (!logoRef.current) return
     if (pulseDuration !== null) {
@@ -66,51 +57,60 @@ export function Sidebar() {
   return (
     <aside
       className={cn(
-        'relative flex flex-col h-screen bg-sidebar border-r border-sidebar-border transition-all duration-300',
-        collapsed ? 'w-16' : 'w-60',
+        'relative flex flex-col h-screen bg-bg-secondary border-r border-border-subtle transition-all duration-300 select-none shrink-0 z-20',
+        collapsed ? 'w-16' : 'w-64',
       )}
       aria-label="Main navigation"
     >
       {/* Logo + Memory Pulse */}
-      <div className={cn('flex items-center gap-3 px-4 h-14 border-b border-sidebar-border shrink-0', collapsed && 'justify-center px-0')}>
-        <div ref={logoRef} className="relative flex h-8 w-8 shrink-0 items-center justify-center">
-          {/* Pulse ring — only rendered when memory is active */}
+      <div className={cn('flex items-center gap-3 px-5 h-16 border-b border-border-subtle shrink-0 bg-bg-primary/50', collapsed && 'justify-center px-0')}>
+        <div ref={logoRef} className="relative flex h-9 w-9 shrink-0 items-center justify-center">
           {pulseDuration !== null && (
             <span
-              className="memory-pulse absolute inset-0 rounded-lg bg-primary"
+              className="memory-pulse absolute inset-0 rounded-xl bg-accent-primary opacity-30"
               aria-hidden="true"
             />
           )}
-          <div className="relative flex h-8 w-8 items-center justify-center rounded-lg bg-primary z-10">
-            <Brain className="h-4 w-4 text-white" aria-hidden="true" />
+          <div className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-accent-primary shadow-default z-10">
+            <Brain className="h-5 w-5 text-white" aria-hidden="true" />
           </div>
         </div>
         {!collapsed && (
-          <span className="font-display font-bold text-sidebar-foreground text-sm tracking-display">CaseMind</span>
+          <div className="flex flex-col min-w-0">
+            <span className="font-display font-bold text-text-primary text-sm tracking-tight leading-none">CaseMind</span>
+            <span className="text-[10px] text-text-muted font-medium mt-1 uppercase tracking-wider">Intelligence Platform</span>
+          </div>
         )}
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 overflow-y-auto py-4 px-2 space-y-1 scrollbar-none">
+      <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1.5 scrollbar-none">
         {mainNav.map(({ to, icon: Icon, label, permission }) => {
           if (permission && !hasPermission(user, permission)) return null
           const isActive = location.pathname.startsWith(to)
+          const isAiAssistant = to === '/assistant'
           return (
             <NavLink
               key={to}
               to={to}
               className={cn(
-                'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
+                'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200',
                 isActive
-                  ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-                  : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground',
-                collapsed && 'justify-center px-0 w-10 mx-auto',
+                  ? 'bg-selected text-text-primary shadow-subtle border-l-2 border-accent-primary font-semibold'
+                  : 'text-text-secondary hover:bg-hover hover:text-text-primary',
+                isAiAssistant && !isActive && 'text-accent-tertiary font-semibold',
+                collapsed && 'justify-center px-0 w-10 mx-auto border-l-0',
               )}
               aria-label={collapsed ? label : undefined}
               title={collapsed ? label : undefined}
             >
-              <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
-              {!collapsed && <span>{label}</span>}
+              <Icon className={cn('h-4 w-4 shrink-0 transition-transform group-hover:scale-105', isAiAssistant && !isActive && 'text-accent-tertiary')} aria-hidden="true" />
+              {!collapsed && <span className="flex-1">{label}</span>}
+              {!collapsed && isAiAssistant && (
+                <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-purple-500/10 text-accent-tertiary font-semibold border border-purple-500/20">
+                  AI
+                </span>
+              )}
             </NavLink>
           )
         })}
@@ -119,8 +119,8 @@ export function Sidebar() {
         {hasPermission(user, 'admin.viewSection') && (
           <>
             {!collapsed && (
-              <p className="px-3 pt-4 pb-1 text-2xs font-semibold uppercase tracking-widest text-sidebar-foreground/30">
-                Admin
+              <p className="px-3 pt-5 pb-1 text-2xs font-semibold uppercase tracking-widest text-text-muted">
+                Platform Admin
               </p>
             )}
             {adminNav.map(({ to, icon: Icon, label, permission }) => {
@@ -131,11 +131,11 @@ export function Sidebar() {
                   key={to}
                   to={to}
                   className={cn(
-                    'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
+                    'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200',
                     isActive
-                      ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-                      : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground',
-                    collapsed && 'justify-center px-0 w-10 mx-auto',
+                      ? 'bg-selected text-text-primary shadow-subtle border-l-2 border-accent-primary font-semibold'
+                      : 'text-text-secondary hover:bg-hover hover:text-text-primary',
+                    collapsed && 'justify-center px-0 w-10 mx-auto border-l-0',
                   )}
                   aria-label={collapsed ? label : undefined}
                   title={collapsed ? label : undefined}
@@ -149,32 +149,22 @@ export function Sidebar() {
         )}
       </nav>
 
-      {/* Memory activity indicator — collapsed state */}
-      {collapsed && pulseDuration !== null && (
-        <div className="px-3 pb-2 flex justify-center">
-          <span
-            className="h-1.5 w-1.5 rounded-full bg-primary opacity-70"
-            title={`Memory active — ${metrics?.resolvedToday} resolved today`}
-            aria-hidden="true"
-          />
-        </div>
-      )}
-
       {/* User footer */}
       {!collapsed && user && (
-        <div className="px-3 py-3 border-t border-sidebar-border">
-          <div className="flex items-center gap-2">
-            <div className="h-7 w-7 rounded-full bg-primary/20 flex items-center justify-center text-xs font-semibold text-primary shrink-0">
+        <div className="p-3 border-t border-border-subtle bg-bg-primary/40">
+          <div className="flex items-center gap-3 p-2 rounded-xl bg-bg-primary border border-border-subtle shadow-subtle">
+            <div className="h-8 w-8 rounded-lg bg-amber-500/15 flex items-center justify-center text-xs font-bold text-accent-primary shrink-0 border border-amber-500/30">
               {user.name.charAt(0)}
             </div>
-            <div className="min-w-0">
-              <p className="text-xs font-medium text-sidebar-foreground truncate">{user.name}</p>
-              <p className="text-2xs text-sidebar-foreground/50 truncate capitalize">{user.role}</p>
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-semibold text-text-primary truncate leading-tight">{user.name}</p>
+              <p className="text-2xs text-text-muted truncate capitalize mt-0.5">{user.role}</p>
             </div>
           </div>
           {pulseDuration !== null && (
-            <p className="text-2xs text-primary/60 mt-1.5 truncate">
-              ↑ {metrics?.resolvedToday} resolutions today
+            <p className="text-2xs text-accent-primary font-medium mt-2 px-1 truncate flex items-center gap-1.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-accent-primary animate-pulse" />
+              {metrics?.resolvedToday} memories synthesized today
             </p>
           )}
         </div>
@@ -183,7 +173,7 @@ export function Sidebar() {
       {/* Collapse toggle */}
       <button
         onClick={() => setCollapsed((c) => !c)}
-        className="absolute -right-3 top-16 z-10 flex h-6 w-6 items-center justify-center rounded-full border bg-background shadow-sm hover:bg-accent transition-colors"
+        className="absolute -right-3 top-20 z-30 flex h-6 w-6 items-center justify-center rounded-full border border-border-default bg-bg-primary shadow-default hover:bg-bg-secondary transition-colors text-text-secondary hover:text-text-primary"
         aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
       >
         {collapsed ? <ChevronRight className="h-3 w-3" /> : <ChevronLeft className="h-3 w-3" />}

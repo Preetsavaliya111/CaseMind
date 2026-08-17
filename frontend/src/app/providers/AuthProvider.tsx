@@ -11,18 +11,35 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | null>(null)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  // Start unauthenticated — user must log in
-  const [user, setUser] = useState<User | null>(null)
+  // Restore persisted user from localStorage on refresh
+  const [user, setUser] = useState<User | null>(() => {
+    try {
+      const saved = localStorage.getItem('casemind_user')
+      return saved ? JSON.parse(saved) : null
+    } catch {
+      return null
+    }
+  })
 
   const login = useCallback((tokens: AuthTokens, user: User) => {
-    localStorage.setItem('access_token', tokens.accessToken)
-    localStorage.setItem('refresh_token', tokens.refreshToken)
+    try {
+      localStorage.setItem('access_token', tokens.accessToken)
+      localStorage.setItem('refresh_token', tokens.refreshToken)
+      localStorage.setItem('casemind_user', JSON.stringify(user))
+    } catch {
+      // storage error fallback
+    }
     setUser(user)
   }, [])
 
   const logout = useCallback(() => {
-    localStorage.removeItem('access_token')
-    localStorage.removeItem('refresh_token')
+    try {
+      localStorage.removeItem('access_token')
+      localStorage.removeItem('refresh_token')
+      localStorage.removeItem('casemind_user')
+    } catch {
+      // storage error fallback
+    }
     setUser(null)
   }, [])
 

@@ -6,14 +6,14 @@ import { ErrorBoundary } from '@/components/common'
 const pageTitles: Record<string, string> = {
   '/dashboard':     'Dashboard',
   '/tickets/new':   'Create Ticket',
-  '/tickets':       'Tickets',
+  '/tickets':       'Tickets Queue',
   '/memory':        'Organizational Memory',
-  '/knowledge':     'Knowledge Base',
-  '/analytics':     'Analytics',
-  '/chat':          'AI Assistant',
-  '/settings':      'Settings',
-  '/admin/models':  'Model Monitoring',
-  '/admin/users':   'User Management',
+  '/knowledge':     'Knowledge Base & SOPs',
+  '/analytics':     'Support Analytics',
+  '/assistant':     'AI Assistant Workspace',
+  '/settings':      'Account & Security Settings',
+  '/admin/models':  'Model Monitoring & Telemetry',
+  '/admin/users':   'User & Role Management',
 }
 
 function resolveTitle(pathname: string): string {
@@ -26,19 +26,22 @@ export function AppLayout() {
   const title = resolveTitle(location.pathname)
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
+    <div className="flex h-screen overflow-hidden bg-bg-page text-text-primary">
       {/* Accessibility: Skip to main content */}
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-md focus:shadow-lg focus:outline-none"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-accent-primary focus:text-white focus:rounded-lg focus:shadow-medium focus:outline-none"
       >
         Skip to main content
       </a>
 
+      {/* Sidebar navigation */}
       <Sidebar />
-      <div className="flex flex-1 flex-col overflow-hidden">
+
+      {/* Main Content Area */}
+      <div className="flex flex-1 flex-col overflow-hidden min-w-0">
         <Topbar title={title} />
-        <main id="main-content" tabIndex={-1} className="flex-1 overflow-y-auto focus:outline-none">
+        <main id="main-content" tabIndex={-1} className="flex-1 overflow-y-auto focus:outline-none bg-bg-page">
           <ErrorBoundary>
             <Outlet />
           </ErrorBoundary>
@@ -47,4 +50,3 @@ export function AppLayout() {
     </div>
   )
 }
-

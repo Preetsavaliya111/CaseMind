@@ -3,18 +3,20 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/utils'
 
 const badgeVariants = cva(
-  'inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
+  'inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-accent-primary/40 focus:ring-offset-2',
   {
     variants: {
       variant: {
-        default: 'border-transparent bg-primary text-primary-foreground',
-        secondary: 'border-transparent bg-secondary text-secondary-foreground',
-        destructive: 'border-transparent bg-destructive text-destructive-foreground',
-        outline: 'text-foreground',
-        success: 'border-transparent bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400',
-        warning: 'border-transparent bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400',
-        info: 'border-transparent bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
-        critical: 'border-transparent bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
+        default: 'border-border-default bg-bg-secondary text-text-secondary',
+        primary: 'border-amber-200 bg-amber-50 text-amber-800',
+        secondary: 'border-border-default bg-bg-secondary text-text-secondary',
+        destructive: 'border-error-border bg-error-bg text-error-text',
+        error: 'border-error-border bg-error-bg text-error-text',
+        critical: 'border-error-border bg-error-bg text-error-text font-semibold',
+        warning: 'border-warning-border bg-warning-bg text-warning-text',
+        success: 'border-success-border bg-success-bg text-success-text',
+        info: 'border-info-border bg-info-bg text-info-text',
+        outline: 'border-border-default text-text-secondary bg-transparent',
       },
     },
     defaultVariants: { variant: 'default' },

@@ -3,78 +3,151 @@
 @tailwind utilities;
 
 @layer base {
-  :root,
-  .dark {
-    --background: 222 47% 7%;
-    --foreground: 210 40% 96%;
+  /* ============================================================
+     CaseMind Enterprise Light/White Theme
+     Premium layered surface system with subtle shadow elevation
+     ============================================================ */
+  :root {
+    /* Main Application Semantic Backgrounds */
+    --bg-page: #F8F9FB;
+    --bg-primary: #FFFFFF;
+    --bg-secondary: #F3F4F6;
+    --bg-elevated: #FFFFFF;
 
-    --card: 222 47% 10%;
-    --card-foreground: 210 40% 96%;
+    /* Semantic Borders (prefer subtle shadows for depth) */
+    --border-subtle: rgba(15, 23, 42, 0.06);
+    --border-default: rgba(15, 23, 42, 0.10);
+    --border-strong: rgba(15, 23, 42, 0.16);
 
-    --popover: 222 47% 10%;
-    --popover-foreground: 210 40% 96%;
+    /* Semantic Text */
+    --text-primary: #0F172A;
+    --text-secondary: #475569;
+    --text-muted: #64748B;
+    --text-disabled: #94A3B8;
 
-    --primary: 221 83% 60%;
+    /* CaseMind Accents (Restrained, Intelligent) */
+    --accent-primary: #D97706;
+    --accent-primary-hover: #B45309;
+    --accent-secondary: #059669;
+    --accent-secondary-hover: #047857;
+    --accent-tertiary: #7C3AED;
+
+    /* Semantic Status Colors */
+    --success-bg: #F0FDF4;
+    --success-text: #166534;
+    --success-border: #BBF7D0;
+
+    --warning-bg: #FFFBEB;
+    --warning-text: #92400E;
+    --warning-border: #FDE68A;
+
+    --error-bg: #FEF2F2;
+    --error-text: #991B1B;
+    --error-border: #FECACA;
+
+    --info-bg: #EFF6FF;
+    --info-text: #1E40AF;
+    --info-border: #BFDBFE;
+
+    /* Interaction States */
+    --hover: rgba(15, 23, 42, 0.04);
+    --active: rgba(15, 23, 42, 0.08);
+    --selected: rgba(217, 119, 6, 0.08);
+    --focus-ring: rgba(217, 119, 6, 0.40);
+
+    /* Shadows (Subtle, Layered Elevation) */
+    --shadow-subtle: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+    --shadow-default: 0 1px 3px 0 rgba(0, 0, 0, 0.08), 0 1px 2px -1px rgba(0, 0, 0, 0.08);
+    --shadow-medium: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.08);
+    --shadow-strong: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.08);
+
+    /* Compatibility Tokens for Radix/Shadcn components */
+    --background: 220 14% 98%;
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 37 91% 44%;
     --primary-foreground: 0 0% 100%;
-
-    --secondary: 217 33% 17%;
-    --secondary-foreground: 210 40% 96%;
-
-    --muted: 217 33% 17%;
-    --muted-foreground: 215 20% 65%;
-
-    --accent: 217 33% 17%;
-    --accent-foreground: 210 40% 96%;
-
-    --destructive: 0 63% 50%;
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 220 9% 29%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%;
+    --accent: 220 14% 96%;
+    --accent-foreground: 222 47% 11%;
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
-
-    --border: 217 33% 17%;
-    --input: 217 33% 17%;
-    --ring: 221 83% 60%;
-
+    --border: 220 13% 90%;
+    --input: 220 13% 88%;
+    --ring: 37 91% 44%;
     --radius: 0.5rem;
 
-    --sidebar: 222 47% 5%;
-    --sidebar-foreground: 210 40% 96%;
-    --sidebar-border: 217 33% 12%;
-    --sidebar-accent: 217 33% 12%;
-    --sidebar-accent-foreground: 210 40% 96%;
+    /* Sidebar Semantic Tokens */
+    --sidebar: 210 20% 98%;
+    --sidebar-foreground: 222 47% 11%;
+    --sidebar-border: 220 13% 90%;
+    --sidebar-accent: 37 91% 44%;
+    --sidebar-accent-foreground: 37 91% 32%;
 
-    /* Semantic tokens */
-    --color-success: 142 71% 45%;
+    /* Status Colors */
+    --color-success: 152 82% 39%;
     --color-warning: 38 92% 50%;
-    --color-danger: 0 63% 50%;
-    --color-info: 199 89% 48%;
-    /* AI / Organizational Memory — purple accent */
-    --color-ai: 262 83% 58%;  /* #8B5CF6 */
+    --color-danger: 0 72% 51%;
+    --color-info: 217 91% 60%;
+    --color-ai: 263 70% 50%;
 
-    /* Motion duration tokens */
-    --duration-fast: 120ms;
-    --duration-base: 200ms;
-    --duration-slow: 350ms;
-
-    /* Memory Pulse — driven by JS custom property */
+    /* Animation Duration */
     --pulse-duration: 3s;
+
+    /* AI Assistant Dedicated Workspace (Dark Obsidian Identity) */
+    --assistant-bg: #000000;
+    --assistant-surface: #0a0a0a;
+    --assistant-surface-elevated: #111111;
+    --assistant-surface-hover: #161616;
+    --assistant-border: rgba(255, 255, 255, 0.08);
+    --assistant-border-strong: rgba(255, 255, 255, 0.14);
+    --assistant-text: #f5f5f5;
+    --assistant-text-secondary: #a1a1a1;
+    --assistant-text-muted: #707070;
+  }
+
+  /* Dedicated Dark Workspace Selector */
+  [data-theme='assistant'] {
+    --bg-page: #000000;
+    --bg-primary: #050505;
+    --bg-secondary: #0a0a0a;
+    --bg-elevated: #111111;
+    --text-primary: #f5f5f5;
+    --text-secondary: #a1a1a1;
+    --text-muted: #707070;
+    --border-subtle: rgba(255, 255, 255, 0.06);
+    --border-default: rgba(255, 255, 255, 0.10);
+    --border-strong: rgba(255, 255, 255, 0.16);
   }
 }
 
 @layer base {
   * {
-    @apply border-border;
+    border-color: var(--border-default);
   }
 
   body {
-    @apply bg-background text-foreground font-sans antialiased;
-    font-feature-settings: 'rlig' 1, 'calt' 1;
+    background-color: var(--bg-page);
+    color: var(--text-primary);
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11', 'rlig' 1, 'calt' 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   :focus-visible {
-    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+    outline: none;
+    box-shadow: var(--shadow-focus, 0 0 0 3px rgba(217, 119, 6, 0.40));
   }
 
   ::selection {
-    @apply bg-primary/20;
+    background-color: rgba(217, 119, 6, 0.15);
+    color: #0F172A;
   }
 
   ::-webkit-scrollbar {
@@ -82,19 +155,32 @@
     height: 6px;
   }
   ::-webkit-scrollbar-track {
-    @apply bg-transparent;
+    background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    @apply bg-border rounded-full;
+    background-color: var(--border-default);
+    border-radius: 9999px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-muted-foreground/40;
+    background-color: var(--border-strong);
+  }
+
+  /* Respect reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }
 
 @layer utilities {
   .skeleton {
-    @apply animate-shimmer bg-gradient-to-r from-muted via-muted/50 to-muted bg-[length:200%_100%];
+    @apply animate-shimmer bg-gradient-to-r from-bg-secondary via-bg-primary to-bg-secondary bg-[length:200%_100%];
   }
 
   .text-balance {
@@ -109,7 +195,6 @@
     display: none;
   }
 
-  /* Memory Pulse ring — speed set via --pulse-duration CSS var from JS */
   .memory-pulse {
     animation: pulse-ring var(--pulse-duration, 3s) ease-in-out infinite;
   }

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import {
   Search, Ticket as TicketIcon, BookOpen, Brain, Navigation,
   ArrowRight, CornerDownLeft, X, PlusCircle, BarChart3,
-  Bot, Settings, ShieldCheck, Users, Layers
+  Bot, Settings, ShieldCheck, Users, Layers, Sparkles
 } from 'lucide-react'
 import {
   Dialog,
@@ -45,9 +45,10 @@ export function GlobalSearchModal({ open, onOpenChange }: GlobalSearchModalProps
       setQuery('')
       setSelectedIndex(0)
       setActiveCategory('all')
-      setTimeout(() => {
+      const timer = setTimeout(() => {
         inputRef.current?.focus()
       }, 50)
+      return () => clearTimeout(timer)
     }
   }, [open])
 
@@ -134,7 +135,7 @@ export function GlobalSearchModal({ open, onOpenChange }: GlobalSearchModalProps
         badge: 'AI',
         icon: <Bot className="h-4 w-4 text-violet-500" />,
         onSelect: () => {
-          navigate('/chat')
+          navigate('/assistant')
           onOpenChange(false)
         },
       },
@@ -179,7 +180,7 @@ export function GlobalSearchModal({ open, onOpenChange }: GlobalSearchModalProps
   )
 
   // Search Results aggregation
-  const searchResults: SearchItem[] = useMemo(() => {
+  const { allTicketResults, allKbResults, allMemoryResults, allActionResults } = useMemo(() => {
     const q = query.trim().toLowerCase()
 
     // 1. Tickets
@@ -191,10 +192,12 @@ export function GlobalSearchModal({ open, onOpenChange }: GlobalSearchModalProps
           t.title.toLowerCase().includes(q) ||
           t.description.toLowerCase().includes(q) ||
           t.reporterName.toLowerCase().includes(q) ||
+          (t.assigneeName && t.assigneeName.toLowerCase().includes(q)) ||
+          t.category.toLowerCase().includes(q) ||
+          t.status.toLowerCase().includes(q) ||
           t.tags.some((tag) => tag.toLowerCase().includes(q))
         )
       })
-      .slice(0, q ? 8 : 3)
       .map((t) => ({
         id: `ticket_${t.id}`,
         type: 'ticket',
@@ -214,13 +217,13 @@ export function GlobalSearchModal({ open, onOpenChange }: GlobalSearchModalProps
       .filter((k) => {
         if (!q) return true
         return (
+          k.id.toLowerCase().includes(q) ||
           k.title.toLowerCase().includes(q) ||
           k.summary.toLowerCase().includes(q) ||
           k.category.toLowerCase().includes(q) ||
           k.tags.some((tag) => tag.toLowerCase().includes(q))
         )
       })
-      .slice(0, q ? 6 : 3)
       .map((k) => ({
         id: `kb_${k.id}`,
         type: 'knowledge',
@@ -240,12 +243,13 @@ export function GlobalSearchModal({ open, onOpenChange }: GlobalSearchModalProps
       .filter((m) => {
         if (!q) return true
         return (
+          m.id.toLowerCase().includes(q) ||
           m.patternTitle.toLowerCase().includes(q) ||
           m.rootCause.toLowerCase().includes(q) ||
+          m.problemDescription.toLowerCase().includes(q) ||
           m.tags.some((tag) => tag.toLowerCase().includes(q))
         )
       })
-      .slice(0, q ? 6 : 2)
       .map((m) => ({
         id: `mem_${m.id}`,
         type: 'memory',
@@ -261,37 +265,49 @@ export function GlobalSearchModal({ open, onOpenChange }: GlobalSearchModalProps
       }))
 
     // 4. Action items filtered
-    const filteredActions: SearchItem[] = actionItems.filter((a) => {
+    const actionResults: SearchItem[] = actionItems.filter((a) => {
       if (!q) return true
       return (
         a.title.toLowerCase().includes(q) ||
-        (a.subtitle && a.subtitle.toLowerCase().includes(q))
+        (a.subtitle && a.subtitle.toLowerCase().includes(q)) ||
+        (a.badge && a.badge.toLowerCase().includes(q))
       )
     })
 
-    // Filter by active category tab
-    if (activeCategory === 'tickets') return ticketResults
-    if (activeCategory === 'knowledge') return kbResults
-    if (activeCategory === 'memory') return memoryResults
-    if (activeCategory === 'actions') return filteredActions
+    return {
+      allTicketResults: ticketResults,
+      allKbResults: kbResults,
+      allMemoryResults: memoryResults,
+      allActionResults: actionResults,
+    }
+  }, [query, actionItems, navigate, onOpenChange])
+
+  // Filtered displayed results based on category
+  const searchResults: SearchItem[] = useMemo(() => {
+    const q = query.trim().toLowerCase()
+
+    if (activeCategory === 'tickets') return allTicketResults
+    if (activeCategory === 'knowledge') return allKbResults
+    if (activeCategory === 'memory') return allMemoryResults
+    if (activeCategory === 'actions') return allActionResults
 
     // 'all' category combines everything
     if (!q) {
       // Default view when input is blank: Quick actions first, then recent tickets, KB, memory
       return [
-        ...filteredActions.slice(0, 4),
-        ...ticketResults.slice(0, 3),
-        ...kbResults.slice(0, 2),
+        ...allActionResults.slice(0, 4),
+        ...allTicketResults.slice(0, 3),
+        ...allKbResults.slice(0, 2),
       ]
     }
 
     return [
-      ...filteredActions.slice(0, 3),
-      ...ticketResults.slice(0, 4),
-      ...kbResults.slice(0, 3),
-      ...memoryResults.slice(0, 2),
+      ...allActionResults.slice(0, 3),
+      ...allTicketResults.slice(0, 4),
+      ...allKbResults.slice(0, 3),
+      ...allMemoryResults.slice(0, 3),
     ]
-  }, [query, activeCategory, actionItems, navigate, onOpenChange])
+  }, [query, activeCategory, allTicketResults, allKbResults, allMemoryResults, allActionResults])
 
   // Reset selected index if search results change
   useEffect(() => {
@@ -310,6 +326,11 @@ export function GlobalSearchModal({ open, onOpenChange }: GlobalSearchModalProps
 
   // Key navigation handler
   const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      onOpenChange(false)
+      return
+    }
+
     if (searchResults.length === 0) return
 
     if (e.key === 'ArrowDown') {
@@ -342,96 +363,120 @@ export function GlobalSearchModal({ open, onOpenChange }: GlobalSearchModalProps
     }
   }
 
+  const totalResultsCount = allActionResults.length + allTicketResults.length + allKbResults.length + allMemoryResults.length
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl p-0 gap-0 overflow-hidden shadow-2xl border-border bg-card top-[25%] sm:rounded-xl">
-        {/* Search Input Bar */}
-        <div className="flex items-center px-4 py-3 border-b border-border/80 bg-background/80 backdrop-blur-sm">
-          <Search className="h-4 w-4 text-muted-foreground shrink-0 mr-3" />
+      <DialogContent
+        hideCloseButton
+        className="fixed top-12 sm:top-20 left-[50%] -translate-x-[50%] translate-y-0 max-w-2xl w-[92vw] sm:w-full p-0 gap-0 overflow-hidden shadow-2xl border border-border bg-card rounded-2xl z-50 animate-in fade-in-0 zoom-in-95 duration-150"
+      >
+        {/* Prominent Search Input Header */}
+        <div className="flex items-center px-4 py-3.5 border-b border-border bg-background/90 backdrop-blur-md">
+          <div className="flex items-center justify-center h-8 w-8 rounded-lg bg-primary/10 text-primary mr-3 shrink-0">
+            <Search className="h-4 w-4" />
+          </div>
           <input
             ref={inputRef}
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Search tickets, knowledge base, memory patterns, or jump to..."
-            className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none focus:ring-0 border-none p-0"
+            placeholder="Type a command or search tickets, knowledge base, memory..."
+            className="flex-1 bg-transparent text-sm sm:text-base text-foreground placeholder:text-muted-foreground outline-none focus:outline-none border-none p-0 ring-0 focus:ring-0"
+            autoFocus
           />
-          {query && (
-            <button
-              type="button"
-              onClick={() => {
-                setQuery('')
-                inputRef.current?.focus()
-              }}
-              className="p-1 text-muted-foreground hover:text-foreground rounded"
-            >
-              <X className="h-3.5 w-3.5" />
-            </button>
-          )}
+          <div className="flex items-center gap-1.5 shrink-0 ml-2">
+            {query ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setQuery('')
+                  inputRef.current?.focus()
+                }}
+                className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors"
+                title="Clear search"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            ) : (
+              <kbd className="hidden sm:inline-flex items-center gap-0.5 px-1.5 py-0.5 text-2xs font-mono font-medium text-muted-foreground bg-muted rounded border border-border">
+                ESC
+              </kbd>
+            )}
+          </div>
         </div>
 
         {/* Filter Category Chips */}
-        <div className="flex items-center px-3 py-2 border-b border-border/60 bg-muted/20 gap-1.5 overflow-x-auto text-xs">
+        <div className="flex items-center px-3 py-2 border-b border-border/70 bg-muted/30 gap-1.5 overflow-x-auto text-xs scrollbar-none">
           <button
             type="button"
             onClick={() => setActiveCategory('all')}
-            className={`px-2.5 py-1 rounded-md transition-colors font-medium flex items-center gap-1 ${
+            className={`px-2.5 py-1 rounded-lg transition-all font-medium flex items-center gap-1.5 shrink-0 ${
               activeCategory === 'all'
                 ? 'bg-primary text-primary-foreground shadow-xs'
-                : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
+                : 'text-muted-foreground hover:text-foreground hover:bg-muted/70'
             }`}
           >
             <Layers className="h-3 w-3" />
-            All
+            <span>All</span>
+            {query && <span className="text-2xs opacity-80">({totalResultsCount})</span>}
           </button>
+
           <button
             type="button"
             onClick={() => setActiveCategory('tickets')}
-            className={`px-2.5 py-1 rounded-md transition-colors font-medium flex items-center gap-1 ${
+            className={`px-2.5 py-1 rounded-lg transition-all font-medium flex items-center gap-1.5 shrink-0 ${
               activeCategory === 'tickets'
                 ? 'bg-primary text-primary-foreground shadow-xs'
-                : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
+                : 'text-muted-foreground hover:text-foreground hover:bg-muted/70'
             }`}
           >
             <TicketIcon className="h-3 w-3" />
-            Tickets
+            <span>Tickets</span>
+            {query && <span className="text-2xs opacity-80">({allTicketResults.length})</span>}
           </button>
+
           <button
             type="button"
             onClick={() => setActiveCategory('knowledge')}
-            className={`px-2.5 py-1 rounded-md transition-colors font-medium flex items-center gap-1 ${
+            className={`px-2.5 py-1 rounded-lg transition-all font-medium flex items-center gap-1.5 shrink-0 ${
               activeCategory === 'knowledge'
                 ? 'bg-primary text-primary-foreground shadow-xs'
-                : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
+                : 'text-muted-foreground hover:text-foreground hover:bg-muted/70'
             }`}
           >
             <BookOpen className="h-3 w-3" />
-            Knowledge Base
+            <span>Knowledge Base</span>
+            {query && <span className="text-2xs opacity-80">({allKbResults.length})</span>}
           </button>
+
           <button
             type="button"
             onClick={() => setActiveCategory('memory')}
-            className={`px-2.5 py-1 rounded-md transition-colors font-medium flex items-center gap-1 ${
+            className={`px-2.5 py-1 rounded-lg transition-all font-medium flex items-center gap-1.5 shrink-0 ${
               activeCategory === 'memory'
                 ? 'bg-primary text-primary-foreground shadow-xs'
-                : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
+                : 'text-muted-foreground hover:text-foreground hover:bg-muted/70'
             }`}
           >
             <Brain className="h-3 w-3" />
-            Memory
+            <span>Memory</span>
+            {query && <span className="text-2xs opacity-80">({allMemoryResults.length})</span>}
           </button>
+
           <button
             type="button"
             onClick={() => setActiveCategory('actions')}
-            className={`px-2.5 py-1 rounded-md transition-colors font-medium flex items-center gap-1 ${
+            className={`px-2.5 py-1 rounded-lg transition-all font-medium flex items-center gap-1.5 shrink-0 ${
               activeCategory === 'actions'
                 ? 'bg-primary text-primary-foreground shadow-xs'
-                : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
+                : 'text-muted-foreground hover:text-foreground hover:bg-muted/70'
             }`}
           >
             <Navigation className="h-3 w-3" />
-            Navigation & Actions
+            <span>Actions & Pages</span>
+            {query && <span className="text-2xs opacity-80">({allActionResults.length})</span>}
           </button>
         </div>
 
@@ -439,11 +484,24 @@ export function GlobalSearchModal({ open, onOpenChange }: GlobalSearchModalProps
         <div ref={listRef} className="max-h-[380px] overflow-y-auto p-2 space-y-1 divide-y divide-transparent">
           {searchResults.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
-              <Search className="h-8 w-8 text-muted-foreground/40 mb-2" />
-              <p className="text-sm font-medium text-foreground">No results found for &ldquo;{query}&rdquo;</p>
+              <div className="h-12 w-12 rounded-full bg-muted/60 flex items-center justify-center mb-3">
+                <Search className="h-6 w-6 text-muted-foreground/60" />
+              </div>
+              <p className="text-sm font-semibold text-foreground">No matches found for &ldquo;{query}&rdquo;</p>
               <p className="text-xs text-muted-foreground mt-1 max-w-sm">
-                Try searching with ticket IDs (e.g. TKT-1001), keywords, categories, or select another tab.
+                Try searching by ticket ID (e.g. <span className="font-mono text-primary">TKT-1001</span>), topic keywords, customer names, or switch tabs above.
               </p>
+              <button
+                type="button"
+                onClick={() => {
+                  setQuery('')
+                  setActiveCategory('all')
+                  inputRef.current?.focus()
+                }}
+                className="mt-3 text-xs text-primary font-medium hover:underline inline-flex items-center gap-1"
+              >
+                Clear search filters
+              </button>
             </div>
           ) : (
             searchResults.map((item, index) => {
@@ -456,7 +514,7 @@ export function GlobalSearchModal({ open, onOpenChange }: GlobalSearchModalProps
                   data-selected={isSelected}
                   onMouseEnter={() => setSelectedIndex(index)}
                   onClick={item.onSelect}
-                  className={`group flex items-center justify-between p-2.5 rounded-lg text-left transition-all cursor-pointer ${
+                  className={`group flex items-center justify-between p-2.5 rounded-xl text-left transition-all cursor-pointer ${
                     isSelected
                       ? 'bg-accent text-accent-foreground shadow-xs'
                       : 'hover:bg-accent/40 text-foreground'
@@ -464,15 +522,15 @@ export function GlobalSearchModal({ open, onOpenChange }: GlobalSearchModalProps
                 >
                   <div className="flex items-start gap-3 min-w-0 flex-1 pr-3">
                     <div
-                      className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md border shadow-2xs ${
-                        isSelected ? 'bg-background border-border' : 'bg-muted/50 border-border/50'
+                      className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border transition-colors shadow-2xs ${
+                        isSelected ? 'bg-background border-border text-primary' : 'bg-muted/50 border-border/60'
                       }`}
                     >
                       {getItemIcon(item)}
                     </div>
 
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-0.5">
+                      <div className="flex items-center gap-2 mb-0.5 flex-wrap">
                         <span className="text-xs font-semibold truncate leading-snug">
                           {item.title}
                         </span>
@@ -499,12 +557,12 @@ export function GlobalSearchModal({ open, onOpenChange }: GlobalSearchModalProps
 
                   <div className="flex items-center gap-2 shrink-0">
                     {isSelected ? (
-                      <span className="flex items-center gap-1 text-2xs text-muted-foreground bg-background px-1.5 py-0.5 rounded border border-border font-mono shadow-2xs">
+                      <span className="flex items-center gap-1 text-2xs text-muted-foreground bg-background px-2 py-0.5 rounded-md border border-border font-mono shadow-2xs">
                         <span>Select</span>
                         <CornerDownLeft className="h-2.5 w-2.5" />
                       </span>
                     ) : (
-                      <ArrowRight className="h-3.5 w-3.5 text-muted-foreground/40 group-hover:text-foreground transition-colors" />
+                      <ArrowRight className="h-3.5 w-3.5 text-muted-foreground/30 group-hover:text-foreground transition-colors" />
                     )}
                   </div>
                 </div>
@@ -514,21 +572,21 @@ export function GlobalSearchModal({ open, onOpenChange }: GlobalSearchModalProps
         </div>
 
         {/* Footer shortcuts helper */}
-        <div className="flex items-center justify-between px-4 py-2.5 border-t border-border/80 bg-muted/30 text-2xs text-muted-foreground">
+        <div className="flex items-center justify-between px-4 py-2.5 border-t border-border bg-muted/40 text-2xs text-muted-foreground">
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1">
-              <kbd className="bg-muted px-1.5 py-0.5 rounded font-mono border border-border">↑↓</kbd> Navigate
+              <kbd className="bg-background px-1.5 py-0.5 rounded font-mono border border-border shadow-2xs">↑↓</kbd> Navigate
             </span>
             <span className="flex items-center gap-1">
-              <kbd className="bg-muted px-1.5 py-0.5 rounded font-mono border border-border">↵</kbd> Open
+              <kbd className="bg-background px-1.5 py-0.5 rounded font-mono border border-border shadow-2xs">↵</kbd> Open
             </span>
             <span className="flex items-center gap-1">
-              <kbd className="bg-muted px-1.5 py-0.5 rounded font-mono border border-border">Esc</kbd> Close
+              <kbd className="bg-background px-1.5 py-0.5 rounded font-mono border border-border shadow-2xs">Esc</kbd> Close
             </span>
           </div>
 
-          <span className="text-muted-foreground/70 hidden sm:inline">
-            CaseMind Universal AI Search
+          <span className="text-muted-foreground/80 hidden sm:inline-flex items-center gap-1.5 font-medium">
+            <Sparkles className="h-3 w-3 text-primary" /> CaseMind Universal AI Search
           </span>
         </div>
       </DialogContent>

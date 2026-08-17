@@ -10,6 +10,7 @@ export default {
     },
     extend: {
       colors: {
+        // Standard semantic tokens (driven by CSS vars)
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
@@ -50,7 +51,55 @@ export default {
           accent: 'hsl(var(--sidebar-accent))',
           'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
         },
-        // Semantic tokens
+
+        // Semantic Backgrounds (Design Spec)
+        'bg-page': 'var(--bg-page, #F8F9FB)',
+        'bg-primary': 'var(--bg-primary, #FFFFFF)',
+        'bg-secondary': 'var(--bg-secondary, #F3F4F6)',
+        'bg-elevated': 'var(--bg-elevated, #FFFFFF)',
+
+        // Semantic Borders
+        'border-subtle': 'var(--border-subtle, rgba(15, 23, 42, 0.06))',
+        'border-default': 'var(--border-default, rgba(15, 23, 42, 0.10))',
+        'border-strong': 'var(--border-strong, rgba(15, 23, 42, 0.16))',
+
+        // Semantic Text
+        'text-primary': 'var(--text-primary, #0F172A)',
+        'text-secondary': 'var(--text-secondary, #475569)',
+        'text-muted': 'var(--text-muted, #64748B)',
+        'text-disabled': 'var(--text-disabled, #94A3B8)',
+
+        // CaseMind Accents
+        'accent-primary': 'var(--accent-primary, #D97706)',
+        'accent-primary-hover': 'var(--accent-primary-hover, #B45309)',
+        'accent-secondary': 'var(--accent-secondary, #059669)',
+        'accent-secondary-hover': 'var(--accent-secondary-hover, #047857)',
+        'accent-tertiary': 'var(--accent-tertiary, #7C3AED)',
+
+        // Semantic Status Colors
+        'success-bg': 'var(--success-bg, #F0FDF4)',
+        'success-text': 'var(--success-text, #166534)',
+        'success-border': 'var(--success-border, #BBF7D0)',
+
+        'warning-bg': 'var(--warning-bg, #FFFBEB)',
+        'warning-text': 'var(--warning-text, #92400E)',
+        'warning-border': 'var(--warning-border, #FDE68A)',
+
+        'error-bg': 'var(--error-bg, #FEF2F2)',
+        'error-text': 'var(--error-text, #991B1B)',
+        'error-border': 'var(--error-border, #FECACA)',
+
+        'info-bg': 'var(--info-bg, #EFF6FF)',
+        'info-text': 'var(--info-text, #1E40AF)',
+        'info-border': 'var(--info-border, #BFDBFE)',
+
+        // Interaction States
+        'hover': 'var(--hover, rgba(15, 23, 42, 0.04))',
+        'active': 'var(--active, rgba(15, 23, 42, 0.08))',
+        'selected': 'var(--selected, rgba(217, 119, 6, 0.08))',
+        'focus-ring': 'var(--focus-ring, rgba(217, 119, 6, 0.40))',
+
+        // Semantic tokens for HSL compatibility
         success: {
           DEFAULT: 'hsl(var(--color-success))',
           foreground: 'hsl(0 0% 100%)',
@@ -67,32 +116,46 @@ export default {
           DEFAULT: 'hsl(var(--color-info))',
           foreground: 'hsl(0 0% 100%)',
         },
-        // AI / Organizational Memory — purple accent (#8B5CF6)
         ai: {
           DEFAULT: 'hsl(var(--color-ai))',
           foreground: 'hsl(0 0% 100%)',
         },
       },
-      borderRadius: {
-        lg: 'var(--radius)',
-        md: 'calc(var(--radius) - 2px)',
-        sm: 'calc(var(--radius) - 4px)',
+
+      // Shadow System (Subtle, Layered Elevation)
+      boxShadow: {
+        'subtle': '0 1px 2px 0 rgba(0, 0, 0, 0.04)',
+        'default': '0 1px 3px 0 rgba(0, 0, 0, 0.08), 0 1px 2px -1px rgba(0, 0, 0, 0.08)',
+        'medium': '0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.08)',
+        'strong': '0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.08)',
+        'focus': '0 0 0 3px rgba(217, 119, 6, 0.40)',
+        'glow': '0 0 20px rgba(217, 119, 6, 0.15)',
       },
+
+      borderRadius: {
+        'none': '0',
+        'sm': 'calc(var(--radius) - 4px)',
+        'md': 'calc(var(--radius) - 2px)',
+        'lg': 'var(--radius)',
+        'xl': '12px',
+        '2xl': '16px',
+        'full': '9999px',
+      },
+
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
         display: ['Inter', 'system-ui', 'sans-serif'],
         mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
       },
+
       fontSize: {
         '2xs': ['0.625rem', { lineHeight: '0.875rem' }],
       },
+
       letterSpacing: {
         display: '-0.02em',
       },
-      spacing: {
-        18: '4.5rem',
-        22: '5.5rem',
-      },
+
       keyframes: {
         'accordion-down': {
           from: { height: '0' },

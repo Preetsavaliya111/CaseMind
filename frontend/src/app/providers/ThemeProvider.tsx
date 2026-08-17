@@ -1,21 +1,21 @@
 import { createContext, useContext, useEffect, type ReactNode } from 'react'
 
 interface ThemeContextValue {
-  resolvedTheme: 'dark'
+  resolvedTheme: 'light'
 }
 
-const ThemeContext = createContext<ThemeContextValue>({ resolvedTheme: 'dark' })
+const ThemeContext = createContext<ThemeContextValue>({ resolvedTheme: 'light' })
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const root = document.documentElement
-    root.classList.remove('light')
-    root.classList.add('dark')
-    localStorage.setItem('theme', 'dark')
+    root.classList.remove('dark')
+    root.classList.add('light')
+    localStorage.setItem('theme', 'light')
   }, [])
 
   return (
-    <ThemeContext.Provider value={{ resolvedTheme: 'dark' }}>
+    <ThemeContext.Provider value={{ resolvedTheme: 'light' }}>
       {children}
     </ThemeContext.Provider>
   )

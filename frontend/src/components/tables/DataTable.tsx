@@ -44,7 +44,7 @@ export function DataTable<TData>({
         checked={table.getIsAllPageRowsSelected()}
         onChange={table.getToggleAllPageRowsSelectedHandler()}
         aria-label="Select all rows"
-        className="rounded border-input"
+        className="rounded border-border-default text-accent-primary focus:ring-accent-primary"
       />
     ),
     cell: ({ row }) => (
@@ -54,7 +54,7 @@ export function DataTable<TData>({
         onChange={row.getToggleSelectedHandler()}
         onClick={(e) => e.stopPropagation()}
         aria-label="Select row"
-        className="rounded border-input"
+        className="rounded border-border-default text-accent-primary focus:ring-accent-primary"
       />
     ),
     size: 40,
@@ -77,18 +77,20 @@ export function DataTable<TData>({
   const selectedCount = Object.keys(rowSelection).length
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
       {selectable && selectedCount > 0 && (
-        <div className="flex items-center gap-3 px-4 py-2 bg-primary/5 border border-primary/20 rounded-md text-sm">
-          <span className="font-medium text-primary">{selectedCount} selected</span>
-          <Button variant="ghost" size="sm" onClick={() => setRowSelection({})}>Clear</Button>
+        <div className="flex items-center gap-3 px-4 py-2 bg-amber-500/10 border border-amber-500/20 rounded-lg text-xs">
+          <span className="font-semibold text-accent-primary">{selectedCount} selected</span>
+          <Button variant="ghost" size="sm" onClick={() => setRowSelection({})} className="h-6 px-2 text-2xs">
+            Clear Selection
+          </Button>
         </div>
       )}
 
-      <div className="rounded-lg border overflow-hidden">
+      <div className="rounded-xl border border-border-subtle bg-bg-primary overflow-hidden shadow-subtle">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="bg-muted/50">
+            <thead className="bg-bg-secondary/70 border-b border-border-subtle">
               {table.getHeaderGroups().map((headerGroup) => (
                 <tr key={headerGroup.id}>
                   {headerGroup.headers.map((header) => {
@@ -98,23 +100,23 @@ export function DataTable<TData>({
                       <th
                         key={header.id}
                         className={cn(
-                          'px-4 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide whitespace-nowrap',
-                          canSort && 'cursor-pointer select-none hover:text-foreground transition-colors',
+                          'px-4 py-3 text-left text-xs font-semibold text-text-secondary uppercase tracking-wider whitespace-nowrap',
+                          canSort && 'cursor-pointer select-none hover:text-text-primary transition-colors',
                         )}
                         style={{ width: header.getSize() !== 150 ? header.getSize() : undefined }}
                         onClick={canSort ? header.column.getToggleSortingHandler() : undefined}
                         aria-sort={sorted === 'asc' ? 'ascending' : sorted === 'desc' ? 'descending' : undefined}
                       >
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1.5">
                           {flexRender(header.column.columnDef.header, header.getContext())}
                           {canSort && (
-                            <span className="text-muted-foreground/50">
+                            <span className="text-text-muted">
                               {sorted === 'asc' ? (
-                                <ChevronUp className="h-3 w-3" />
+                                <ChevronUp className="h-3.5 w-3.5 text-accent-primary" />
                               ) : sorted === 'desc' ? (
-                                <ChevronDown className="h-3 w-3" />
+                                <ChevronDown className="h-3.5 w-3.5 text-accent-primary" />
                               ) : (
-                                <ChevronsUpDown className="h-3 w-3" />
+                                <ChevronsUpDown className="h-3.5 w-3.5 opacity-40 hover:opacity-100" />
                               )}
                             </span>
                           )}
@@ -125,10 +127,10 @@ export function DataTable<TData>({
                 </tr>
               ))}
             </thead>
-            <tbody className="divide-y bg-background">
+            <tbody className="divide-y divide-border-subtle bg-bg-primary">
               {table.getRowModel().rows.length === 0 ? (
                 <tr>
-                  <td colSpan={columns.length + (selectable ? 1 : 0)} className="px-4 py-12 text-center text-muted-foreground text-sm">
+                  <td colSpan={columns.length + (selectable ? 1 : 0)} className="px-4 py-12 text-center text-text-muted text-sm">
                     {emptyMessage}
                   </td>
                 </tr>
@@ -137,14 +139,14 @@ export function DataTable<TData>({
                   <tr
                     key={row.id}
                     className={cn(
-                      'transition-colors',
-                      onRowClick && 'cursor-pointer hover:bg-muted/30',
-                      row.getIsSelected() && 'bg-primary/5',
+                      'transition-colors duration-150',
+                      onRowClick && 'cursor-pointer hover:bg-hover',
+                      row.getIsSelected() && 'bg-amber-500/5',
                     )}
                     onClick={() => onRowClick?.(row.original)}
                   >
                     {row.getVisibleCells().map((cell) => (
-                      <td key={cell.id} className="px-4 py-3">
+                      <td key={cell.id} className="px-4 py-3 text-text-secondary">
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </td>
                     ))}
@@ -156,16 +158,16 @@ export function DataTable<TData>({
         </div>
 
         {/* Pagination */}
-        <div className="flex items-center justify-between px-4 py-3 border-t bg-muted/20 text-xs text-muted-foreground">
+        <div className="flex items-center justify-between px-4 py-3 border-t border-border-subtle bg-bg-secondary/40 text-xs text-text-muted">
           <span>
             {table.getFilteredRowModel().rows.length} total rows
             {selectedCount > 0 && ` · ${selectedCount} selected`}
           </span>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <span>
-              Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
+              Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount() || 1}
             </span>
-            <div className="flex gap-1">
+            <div className="flex gap-1.5">
               <Button
                 variant="outline"
                 size="icon"

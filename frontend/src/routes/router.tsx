@@ -26,7 +26,7 @@ const CreateTicketPage  = lazy(() => import('@/pages/CreateTicketPage').then((m)
 const MemoryPage        = lazy(() => import('@/pages/MemoryPage').then((m) => ({ default: m.MemoryPage })))
 const KnowledgePage     = lazy(() => import('@/pages/KnowledgePage').then((m) => ({ default: m.KnowledgePage })))
 const AnalyticsPage     = lazy(() => import('@/pages/AnalyticsPage').then((m) => ({ default: m.AnalyticsPage })))
-const ChatPage          = lazy(() => import('@/pages/ChatPage').then((m) => ({ default: m.ChatPage })))
+const AssistantPage   = lazy(() => import('@/pages/AssistantPage').then((m) => ({ default: m.AssistantPage })))
 const SettingsPage      = lazy(() => import('@/pages/SettingsPage').then((m) => ({ default: m.SettingsPage })))
 const LoginPage         = lazy(() => import('@/pages/LoginPage').then((m) => ({ default: m.LoginPage })))
 const NotFoundPage      = lazy(() => import('@/pages/NotFoundPage').then((m) => ({ default: m.NotFoundPage })))
@@ -60,6 +60,20 @@ export const router = createBrowserRouter([
     element: withSuspense(LoginPage),
   },
   {
+    path: '/assistant',
+    element: (
+      <RequireAuth>
+        <RequirePermission permission="chat.use">
+          {withSuspense(AssistantPage)}
+        </RequirePermission>
+      </RequireAuth>
+    ),
+  },
+  {
+    path: '/chat',
+    element: <Navigate to="/assistant" replace />,
+  },
+  {
     path: '/403',
     element: <RequireAuth><AppLayout /></RequireAuth>,
     children: [
@@ -78,7 +92,6 @@ export const router = createBrowserRouter([
       { path: 'memory',       element: <RequirePermission permission="memory.view">{withSuspense(MemoryPage)}</RequirePermission> },
       { path: 'knowledge',    element: withSuspense(KnowledgePage) },
       { path: 'analytics',    element: <RequirePermission permission="analytics.view">{withSuspense(AnalyticsPage)}</RequirePermission> },
-      { path: 'chat',         element: <RequirePermission permission="chat.use">{withSuspense(ChatPage)}</RequirePermission> },
       { path: 'settings',     element: withSuspense(SettingsPage) },
       {
         path: 'admin/models',

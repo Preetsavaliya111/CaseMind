@@ -36,8 +36,10 @@ export function Topbar({ title }: TopbarProps) {
 
   return (
     <>
-      <header className="flex h-14 items-center justify-between border-b bg-background px-6 shrink-0 z-10">
-        <h1 className="text-sm font-semibold text-foreground">{title}</h1>
+      <header className="flex h-16 items-center justify-between border-b border-border-subtle bg-bg-primary px-6 shrink-0 z-10 shadow-subtle">
+        <div className="flex items-center gap-3">
+          <h1 className="text-base font-semibold text-text-primary tracking-tight">{title}</h1>
+        </div>
 
         <div className="flex items-center gap-3">
           {/* Universal Search trigger button */}
@@ -45,12 +47,12 @@ export function Topbar({ title }: TopbarProps) {
             variant="outline"
             size="sm"
             onClick={() => setSearchOpen(true)}
-            className="flex gap-2 text-muted-foreground w-48 sm:w-64 justify-start bg-card/60 hover:bg-accent/80 hover:text-foreground border-border/80 transition-all rounded-lg shadow-2xs"
+            className="flex gap-2 text-text-muted w-48 sm:w-72 justify-start bg-bg-secondary/70 hover:bg-bg-secondary hover:text-text-primary border-border-default transition-all rounded-xl shadow-subtle h-9"
             aria-label="Universal Search"
           >
-            <Search className="h-3.5 w-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
+            <Search className="h-3.5 w-3.5 shrink-0 text-text-muted" aria-hidden="true" />
             <span className="text-xs truncate">Search tickets, KB, memory...</span>
-            <kbd className="ml-auto text-2xs bg-muted/90 text-muted-foreground px-1.5 py-0.5 rounded font-mono border border-border/60">
+            <kbd className="ml-auto text-2xs bg-bg-primary text-text-muted px-1.5 py-0.5 rounded font-mono border border-border-default shadow-xs">
               {isMac ? '⌘K' : 'Ctrl K'}
             </kbd>
           </Button>
@@ -64,33 +66,33 @@ export function Topbar({ title }: TopbarProps) {
               <Button
                 variant="ghost"
                 size="icon"
-                className="rounded-full hover:ring-2 hover:ring-primary/20 transition-all"
+                className="rounded-full hover:ring-2 hover:ring-accent-primary/20 transition-all"
                 aria-label="Profile menu"
               >
-                <Avatar className="h-8 w-8 border border-border">
-                  <AvatarFallback className="text-xs font-medium bg-primary/10 text-primary">
+                <Avatar className="h-8 w-8 border border-border-default shadow-subtle">
+                  <AvatarFallback className="text-xs font-semibold bg-amber-500/15 text-accent-primary">
                     {user ? initials(user.name) : 'U'}
                   </AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-52 shadow-xl border-border bg-card">
+            <DropdownMenuContent align="end" className="w-56 shadow-medium border-border-default bg-bg-elevated rounded-xl p-1">
               <DropdownMenuLabel className="font-normal p-3">
-                <p className="text-sm font-medium text-foreground">{user?.name}</p>
-                <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
-                <span className="inline-block mt-1 text-[10px] uppercase font-mono px-1.5 py-0.2 bg-muted text-muted-foreground rounded">
+                <p className="text-sm font-semibold text-text-primary">{user?.name}</p>
+                <p className="text-xs text-text-muted truncate">{user?.email}</p>
+                <span className="inline-block mt-1.5 text-[10px] uppercase font-mono px-1.5 py-0.5 bg-bg-secondary text-text-secondary rounded border border-border-subtle font-semibold">
                   {user?.role?.replace('_', ' ')}
                 </span>
               </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => navigate('/settings')} className="cursor-pointer gap-2">
-                <User className="h-4 w-4" />
-                Profile & Settings
+              <DropdownMenuSeparator className="bg-border-subtle" />
+              <DropdownMenuItem onClick={() => navigate('/settings')} className="cursor-pointer gap-2 text-text-secondary hover:text-text-primary rounded-lg text-xs py-2">
+                <User className="h-4 w-4 text-text-muted" />
+                Profile & Security Settings
               </DropdownMenuItem>
-              <DropdownMenuSeparator />
+              <DropdownMenuSeparator className="bg-border-subtle" />
               <DropdownMenuItem
                 onClick={logout}
-                className="text-destructive focus:text-destructive cursor-pointer gap-2"
+                className="text-error-text focus:text-error-text cursor-pointer gap-2 rounded-lg text-xs py-2 hover:bg-error-bg"
               >
                 <LogOut className="h-4 w-4" />
                 Sign out

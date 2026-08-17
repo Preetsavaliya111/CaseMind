@@ -31,7 +31,7 @@ function MiniSparkline({ data, isUp }: { data: SparklinePoint[]; isUp: boolean }
     })
     .join(' ')
 
-  const strokeColor = isUp ? 'hsl(var(--color-success))' : 'hsl(var(--color-danger))'
+  const strokeColor = isUp ? 'var(--accent-secondary, #059669)' : 'var(--error-text, #991B1B)'
 
   return (
     <svg width={width} height={height} className="overflow-visible opacity-80 shrink-0" aria-hidden="true">
@@ -55,7 +55,7 @@ export function StatCard({
   trend,
   sparkline,
   className,
-  iconClassName
+  iconClassName,
 }: StatCardProps) {
   const isUp = trend ? trend.value >= 0 : true
   const isGood = trend?.isPositiveGood !== undefined ? (isUp ? trend.isPositiveGood : !trend.isPositiveGood) : isUp
@@ -70,30 +70,33 @@ export function StatCard({
 
   const trendColor = trend
     ? isGood
-      ? 'text-success'
-      : 'text-danger'
-    : 'text-muted-foreground'
+      ? 'text-success-text bg-success-bg border-success-border'
+      : 'text-error-text bg-error-bg border-error-border'
+    : 'text-text-muted bg-bg-secondary border-border-default'
 
   return (
-    <Card className={cn('transition-all duration-200 hover:shadow-md hover:border-primary/30', className)}>
+    <Card className={cn('relative overflow-hidden group border border-border-subtle shadow-default hover:shadow-medium transition-all duration-300', className)}>
+      {/* Subtle hover gradient background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-accent-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+
       <CardContent className="p-5">
         <div className="flex items-start justify-between">
           <div className="space-y-1 min-w-0 flex-1">
-            <p className="text-xs font-medium text-muted-foreground truncate">{title}</p>
-            <p className="text-2xl font-bold font-mono tracking-tight text-foreground">{value}</p>
-            {description && <p className="text-2xs text-muted-foreground truncate">{description}</p>}
+            <p className="text-xs font-medium text-text-muted truncate">{title}</p>
+            <p className="text-2xl font-bold font-mono tracking-tight text-text-primary">{value}</p>
+            {description && <p className="text-2xs text-text-muted truncate">{description}</p>}
           </div>
-          <div className={cn('rounded-xl p-2.5 bg-primary/10 shrink-0', iconClassName)}>
-            <Icon className="h-5 w-5 text-primary" aria-hidden="true" />
+          <div className={cn('rounded-xl p-2.5 bg-amber-500/10 text-accent-primary shrink-0 border border-amber-500/20', iconClassName)}>
+            <Icon className="h-5 w-5" aria-hidden="true" />
           </div>
         </div>
 
-        <div className="mt-3 flex items-center justify-between gap-2 pt-1 border-t border-border/50">
+        <div className="mt-3.5 flex items-center justify-between gap-2 pt-2.5 border-t border-border-subtle">
           {trend && TrendIcon ? (
-            <div className={cn('flex items-center gap-1 text-xs font-medium', trendColor)}>
-              <TrendIcon className="h-3.5 w-3.5" aria-hidden="true" />
+            <div className={cn('inline-flex items-center gap-1 text-2xs font-semibold px-2 py-0.5 rounded-full border', trendColor)}>
+              <TrendIcon className="h-3 w-3" aria-hidden="true" />
               <span>{Math.abs(trend.value)}%</span>
-              <span className="text-muted-foreground font-normal text-2xs truncate">{trend.label}</span>
+              <span className="font-normal opacity-80">{trend.label}</span>
             </div>
           ) : (
             <div />
