@@ -9,13 +9,15 @@ import {
   ExternalLink,
   ChevronRight
 } from 'lucide-react'
-import type { ContextIntelligence } from '../types'
+import type { ContextIntelligence, RelatedDocument, RelatedTicket } from '../types'
 import { cn } from '@/utils'
 import { useNavigate } from 'react-router-dom'
 
 interface ContextPanelProps {
   context?: ContextIntelligence
   onActionClick?: (action: string) => void
+  onSelectDocument?: (doc: RelatedDocument) => void
+  onSelectTicket?: (ticket: RelatedTicket) => void
   onCollapse?: () => void
   className?: string
 }
@@ -23,6 +25,8 @@ interface ContextPanelProps {
 export function ContextPanel({
   context,
   onActionClick,
+  onSelectDocument,
+  onSelectTicket,
   onCollapse,
   className,
 }: ContextPanelProps) {
@@ -115,7 +119,7 @@ export function ContextPanel({
               {context.relatedTickets.map((tkt) => (
                 <div
                   key={tkt.id}
-                  onClick={() => navigate(`/tickets`)}
+                  onClick={() => onSelectTicket ? onSelectTicket(tkt) : navigate(`/tickets`)}
                   className="group p-3 rounded-xl bg-[#0d0d0d] hover:bg-[#141414] border border-white/[0.06] hover:border-white/20 transition-all cursor-pointer shadow-xs"
                 >
                   <div className="flex items-center justify-between gap-1.5 mb-1">
@@ -151,7 +155,7 @@ export function ContextPanel({
               {context.relatedDocuments.map((doc) => (
                 <div
                   key={doc.id}
-                  onClick={() => navigate('/knowledge')}
+                  onClick={() => onSelectDocument ? onSelectDocument(doc) : navigate('/knowledge')}
                   className="group p-3 rounded-xl bg-[#0d0d0d] hover:bg-[#141414] border border-white/[0.06] hover:border-white/20 transition-all cursor-pointer shadow-xs"
                 >
                   <div className="flex items-center justify-between gap-1.5 mb-0.5">

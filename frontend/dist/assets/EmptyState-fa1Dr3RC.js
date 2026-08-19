@@ -1,6 +1,0 @@
-import{j as e}from"./query-Dg1SIh1F.js";import{c as l,h as x,B as o,V as c}from"./index-BEUSIYjf.js";/**
- * @license lucide-react v0.309.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */const n=l("Inbox",[["polyline",{points:"22 12 16 12 14 15 10 15 8 12 2 12",key:"o97t9d"}],["path",{d:"M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z",key:"oot6mr"}]]);function b({icon:s=n,title:a,description:r,action:t,className:d}){return e.jsx(x,{className:c("p-12 text-center border-border-subtle bg-bg-primary shadow-subtle",d),children:e.jsxs("div",{className:"flex flex-col items-center justify-center space-y-4 max-w-sm mx-auto",children:[e.jsx("div",{className:"p-4 rounded-2xl bg-bg-secondary text-text-muted border border-border-subtle shadow-xs",children:e.jsx(s,{className:"h-8 w-8 text-text-muted","aria-hidden":"true"})}),e.jsxs("div",{className:"space-y-1.5",children:[e.jsx("h3",{className:"text-base font-semibold text-text-primary",children:a}),e.jsx("p",{className:"text-xs text-text-muted leading-relaxed",children:r})]}),t&&e.jsx(o,{variant:"default",size:"sm",onClick:t.onClick,className:"mt-2",children:t.label})]})})}export{b as E};

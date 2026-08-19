@@ -9,6 +9,7 @@ import { AiMessage } from '../components/AiMessage'
 import { ThinkingIndicator } from '../components/ThinkingIndicator'
 import { Composer } from '../components/Composer'
 import { EmptyState } from '../components/EmptyState'
+import { CitationInspectorModal, type InspectableItem } from '../components/CitationInspectorModal'
 import { cn } from '@/utils'
 
 export function AssistantPage() {
@@ -33,6 +34,7 @@ export function AssistantPage() {
 
   const [mobileHistoryOpen, setMobileHistoryOpen] = useState(false)
   const [mobileContextOpen, setMobileContextOpen] = useState(false)
+  const [inspectItem, setInspectItem] = useState<InspectableItem | null>(null)
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
@@ -119,6 +121,7 @@ export function AssistantPage() {
                       key={msg.id}
                       message={msg}
                       onActionClick={handleActionClick}
+                      onSelectCitation={(citation) => setInspectItem(citation)}
                     />
                   )
                 )}
@@ -167,6 +170,8 @@ export function AssistantPage() {
           <ContextPanel
             context={activeConversation?.contextSnapshot}
             onActionClick={handleActionClick}
+            onSelectDocument={(doc) => setInspectItem(doc)}
+            onSelectTicket={(ticket) => setInspectItem(ticket)}
             onCollapse={() => setContextPanelOpen(false)}
             className="w-72 xl:w-80"
           />
@@ -239,6 +244,14 @@ export function AssistantPage() {
                   handleActionClick(action)
                   setMobileContextOpen(false)
                 }}
+                onSelectDocument={(doc) => {
+                  setInspectItem(doc)
+                  setMobileContextOpen(false)
+                }}
+                onSelectTicket={(ticket) => {
+                  setInspectItem(ticket)
+                  setMobileContextOpen(false)
+                }}
                 onCollapse={() => setMobileContextOpen(false)}
                 className="flex-1 border-l-0"
               />
@@ -246,6 +259,14 @@ export function AssistantPage() {
           </div>
         )}
       </div>
+
+      {/* In-Assistant Grounded Intelligence & Document Inspector Modal */}
+      <CitationInspectorModal
+        item={inspectItem}
+        open={Boolean(inspectItem)}
+        onClose={() => setInspectItem(null)}
+        onAskAi={(prompt) => sendMessage(prompt)}
+      />
     </div>
   )
 }

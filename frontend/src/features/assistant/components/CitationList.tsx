@@ -15,6 +15,7 @@ import { cn } from '@/utils'
 interface CitationListProps {
   citations: Citation[]
   className?: string
+  onSelectCitation?: (citation: Citation) => void
 }
 
 const SOURCE_META: Record<
@@ -28,7 +29,7 @@ const SOURCE_META: Record<
   metric: { label: 'Live Telemetry', icon: Database },
 }
 
-export function CitationList({ citations, className }: CitationListProps) {
+export function CitationList({ citations, className, onSelectCitation }: CitationListProps) {
   const [expanded, setExpanded] = useState(false)
 
   if (!citations || citations.length === 0) return null
@@ -66,9 +67,10 @@ export function CitationList({ citations, className }: CitationListProps) {
           return (
             <div
               key={citation.id}
+              onClick={() => onSelectCitation?.(citation)}
               className={cn(
-                'group relative flex flex-col justify-between p-3.5 rounded-xl border transition-all duration-200',
-                'bg-[#0d0d0d] hover:bg-[#141414] border-white/[0.08] hover:border-white/25 shadow-xs'
+                'group relative flex flex-col justify-between p-3.5 rounded-xl border transition-all duration-200 cursor-pointer',
+                'bg-[#0d0d0d] hover:bg-[#151515] border-white/[0.08] hover:border-white/30 shadow-xs hover:shadow-lg active:scale-[0.99]'
               )}
             >
               <div>
@@ -87,30 +89,28 @@ export function CitationList({ citations, className }: CitationListProps) {
                 </div>
 
                 {/* Title */}
-                <p className="text-xs font-semibold text-white leading-snug line-clamp-2">
+                <p className="text-xs font-semibold text-white leading-snug line-clamp-2 group-hover:text-white transition-colors">
                   {citation.title}
                 </p>
 
                 {/* Snippet */}
                 {citation.snippet && (
-                  <p className="text-2xs text-[#888888] group-hover:text-[#aaaaaa] mt-1.5 line-clamp-2 leading-relaxed">
+                  <p className="text-2xs text-[#888888] group-hover:text-[#b0b0b0] mt-1.5 line-clamp-2 leading-relaxed transition-colors">
                     {citation.snippet}
                   </p>
                 )}
               </div>
 
               {/* Action footer */}
-              {citation.url && (
-                <div className="mt-3 pt-2 border-t border-white/[0.04] flex items-center justify-between">
-                  <span className="text-[10px] text-[#666666] font-mono">
-                    Verified precedent
-                  </span>
-                  <span className="flex items-center gap-1 text-[10px] text-white group-hover:underline font-medium">
-                    <span>Inspect</span>
-                    <ExternalLink className="h-2.5 w-2.5" />
-                  </span>
-                </div>
-              )}
+              <div className="mt-3 pt-2 border-t border-white/[0.06] flex items-center justify-between">
+                <span className="text-[10px] text-[#666666] font-mono">
+                  Verified precedent
+                </span>
+                <span className="flex items-center gap-1 text-[10px] text-[#cccccc] group-hover:text-white font-medium transition-colors">
+                  <span>Inspect</span>
+                  <ExternalLink className="h-2.5 w-2.5" />
+                </span>
+              </div>
             </div>
           )
         })}

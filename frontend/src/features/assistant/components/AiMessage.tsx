@@ -9,7 +9,7 @@ import {
   ThumbsDown,
   AlertCircle
 } from 'lucide-react'
-import type { AssistantMessage } from '../types'
+import type { AssistantMessage, Citation } from '../types'
 import { AssistantAvatar } from './AssistantAvatar'
 import { CitationList } from './CitationList'
 import { MarkdownRenderer } from '@/features/chat/components/MarkdownRenderer'
@@ -18,9 +18,10 @@ import { formatDateTime } from '@/utils'
 interface AiMessageProps {
   message: AssistantMessage
   onActionClick?: (action: string) => void
+  onSelectCitation?: (citation: Citation) => void
 }
 
-export function AiMessage({ message, onActionClick }: AiMessageProps) {
+export function AiMessage({ message, onActionClick, onSelectCitation }: AiMessageProps) {
   const [copied, setCopied] = useState(false)
   const [feedback, setFeedback] = useState<'positive' | 'negative' | null>(null)
 
@@ -119,7 +120,10 @@ export function AiMessage({ message, onActionClick }: AiMessageProps) {
 
           {/* Grounded Citations List */}
           {message.citations && message.citations.length > 0 && (
-            <CitationList citations={message.citations} />
+            <CitationList
+              citations={message.citations}
+              onSelectCitation={onSelectCitation}
+            />
           )}
         </div>
 
