@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import {
   Users, UserPlus, Shield, CheckCircle2, Mail, AlertTriangle, Search
 } from 'lucide-react'
@@ -10,7 +10,7 @@ import {
 } from '@/components/ui'
 
 import { StatCard } from '@/components/common'
-import { mockUsers } from '@/mocks'
+import { useAdminUsers, useInviteUser, useUpdateUserRole, useToggleUserStatus } from '@/features/admin/hooks/useAdmin'
 import type { User, UserRole } from '@/types'
 import { formatDate } from '@/utils'
 
@@ -40,23 +40,17 @@ function InviteDialog({ open, onClose, onUserInvited }: { open: boolean; onClose
   const [department, setDepartment] = useState('Customer Support')
   const [role, setRole] = useState<UserRole>('agent')
   const [sent, setSent] = useState(false)
-  const [sending, setSending] = useState(false)
+  const inviteMutation = useInviteUser()
 
   const handleInvite = async () => {
     if (!email || !name) return
-    setSending(true)
-    await new Promise((r) => setTimeout(r, 600))
-    const newUser: User = {
-      id: `usr_${Date.now()}`,
-      email,
+    const newUser = await inviteMutation.mutateAsync({
       name,
+      email,
       role,
       department,
-      isActive: true,
-      createdAt: new Date().toISOString(),
-    }
+    })
     onUserInvited(newUser)
-    setSending(false)
     setSent(true)
   }
 
@@ -132,8 +126,8 @@ function InviteDialog({ open, onClose, onUserInvited }: { open: boolean; onClose
             <Button
               className="w-full text-xs h-9 mt-2"
               onClick={handleInvite}
-              disabled={!email.includes('@') || !name.trim() || sending}
-              loading={sending}
+              disabled={!email.includes('@') || !name.trim() || inviteMutation.isPending}
+              loading={inviteMutation.isPending}
             >
               <Mail className="h-3.5 w-3.5 mr-1.5" />
               Send Invitation & Provision Account
@@ -161,11 +155,21 @@ function InviteDialog({ open, onClose, onUserInvited }: { open: boolean; onClose
 }
 
 export function AdminUsersPage() {
-  const [users, setUsers] = useState<User[]>(mockUsers)
+  const { data: initialUsers = [] } = useAdminUsers()
+  const [users, setUsers] = useState<User[]>(initialUsers)
   const [search, setSearch] = useState('')
   const [departmentFilter, setDepartmentFilter] = useState('all')
   const [inviteOpen, setInviteOpen] = useState(false)
   const [deactivateTarget, setDeactivateTarget] = useState<User | null>(null)
+  const updateRoleMutation = useUpdateUserRole()
+  const toggleStatusMutation = useToggleUserStatus()
+
+  // Sync with fetched users
+  useEffect(() => {
+    if (initialUsers.length > 0) {
+      setUsers(initialUsers)
+    }
+  }, [initialUsers])
 
   const departments = useMemo(() => {
     return ['all', ...Array.from(new Set(users.map((u) => u.department)))]
@@ -189,17 +193,20 @@ export function AdminUsersPage() {
     if (user.isActive) {
       setDeactivateTarget(user)
     } else {
+      toggleStatusMutation.mutate({ userId: user.id, isActive: true })
       setUsers((prev) => prev.map((u) => u.id === user.id ? { ...u, isActive: true } : u))
     }
   }
 
   const confirmDeactivation = () => {
     if (!deactivateTarget) return
+    toggleStatusMutation.mutate({ userId: deactivateTarget.id, isActive: false })
     setUsers((prev) => prev.map((u) => u.id === deactivateTarget.id ? { ...u, isActive: false } : u))
     setDeactivateTarget(null)
   }
 
   const changeRole = (id: string, role: UserRole) => {
+    updateRoleMutation.mutate({ userId: id, role })
     setUsers((prev) => prev.map((u) => u.id === id ? { ...u, role } : u))
   }
 

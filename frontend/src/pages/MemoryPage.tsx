@@ -10,7 +10,7 @@ import {
   Input, Button, Badge,
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription
 } from '@/components/ui'
-import { mockMemoryRecords } from '@/mocks'
+import { useMemoryRecords } from '@/features/memory/hooks/useMemory'
 import type { OrganizationalMemory } from '@/types'
 import { useDashboardMetrics } from '@/features/dashboard/hooks/useDashboard'
 import { formatDate } from '@/utils'
@@ -19,6 +19,7 @@ import { formatDate } from '@/utils'
 export function MemoryPage() {
   const navigate = useNavigate()
   const { data: metrics } = useDashboardMetrics()
+  const { data: memoryRecords = [] } = useMemoryRecords()
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [selectedMemory, setSelectedMemory] = useState<OrganizationalMemory | null>(null)
@@ -37,7 +38,7 @@ export function MemoryPage() {
 
   // Filtered records
   const filteredRecords = useMemo(() => {
-    return mockMemoryRecords.filter((rec) => {
+    return memoryRecords.filter((rec) => {
       const matchCat = selectedCategory === 'all' || rec.category === selectedCategory
       const matchSearch =
         !searchQuery ||
@@ -47,17 +48,17 @@ export function MemoryPage() {
         rec.tags.some((t) => t.toLowerCase().includes(searchQuery.toLowerCase()))
       return matchCat && matchSearch
     })
-  }, [selectedCategory, searchQuery])
+  }, [selectedCategory, searchQuery, memoryRecords])
 
   // Simulator handler
   const handleSimulate = () => {
     if (!simulatedQuery.trim()) return
     const q = simulatedQuery.toLowerCase()
-    let match = mockMemoryRecords.find((r) =>
+    let match = memoryRecords.find((r) =>
       r.tags.some((t) => q.includes(t)) ||
       r.patternTitle.toLowerCase().split(' ').some((w) => w.length > 3 && q.includes(w))
     )
-    if (!match) match = mockMemoryRecords[0]
+    if (!match) match = memoryRecords[0]
     setSimulatedMatch(match)
   }
 
@@ -92,7 +93,7 @@ export function MemoryPage() {
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 shrink-0">
             <div className="rounded-xl border bg-card/60 backdrop-blur p-3 text-center">
               <p className="text-2xs text-muted-foreground font-medium">Patterns Indexed</p>
-              <p className="text-xl font-bold font-mono text-primary mt-0.5">{mockMemoryRecords.length}</p>
+              <p className="text-xl font-bold font-mono text-primary mt-0.5">{memoryRecords.length}</p>
             </div>
             <div className="rounded-xl border bg-card/60 backdrop-blur p-3 text-center">
               <p className="text-2xs text-muted-foreground font-medium">Avg Success Rate</p>

@@ -32,4 +32,28 @@ export const knowledgeService = {
         matchedChunks: [article.summary],
       }))
   },
+
+  async createArticle(data: Partial<KnowledgeArticle>): Promise<KnowledgeArticle> {
+    await delay(300)
+    const newArticle: KnowledgeArticle = {
+      id: `kb_${Date.now()}`,
+      title: data.title ?? 'Untitled Article',
+      summary: data.summary ?? '',
+      content: data.content ?? '',
+      category: data.category ?? 'General',
+      tags: data.tags ?? [],
+      authorId: data.authorId ?? 'usr_001',
+      authorName: data.authorName ?? 'System',
+      viewCount: 0,
+      helpfulCount: 0,
+      unhelpfulCount: 0,
+      isPublished: true,
+      version: 1,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      relatedTicketIds: data.relatedTicketIds ?? [],
+    }
+    mockKnowledgeArticles.unshift(newArticle)
+    return newArticle
+  },
 }

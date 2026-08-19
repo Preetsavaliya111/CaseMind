@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Brain, CheckCircle2, AlertTriangle, RefreshCw, Zap, Sparkles
 } from 'lucide-react'
@@ -9,14 +9,30 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription
 } from '@/components/ui'
 import { StatCard } from '@/components/common'
-import { mockModels, mockExperiments } from '@/mocks'
+import { useAdminModels, useAdminExperiments, useUpdateModelStatus } from '@/features/admin/hooks/useAdmin'
 import type { ModelConfig, ModelExperiment } from '@/types'
 
 export function AdminModelsPage() {
-  const [models, setModels] = useState<ModelConfig[]>(mockModels)
-  const [experiments] = useState<ModelExperiment[]>(mockExperiments)
+  const { data: initialModels = [] } = useAdminModels()
+  const { data: initialExperiments = [] } = useAdminExperiments()
+  const [models, setModels] = useState<ModelConfig[]>(initialModels)
+  const [experiments, setExperiments] = useState<ModelExperiment[]>(initialExperiments)
   const [retrainingModel, setRetrainingModel] = useState<ModelConfig | null>(null)
   const [retrainingProgress, setRetrainingProgress] = useState(0)
+  const updateStatusMutation = useUpdateModelStatus()
+
+  // Sync state with query
+  useEffect(() => {
+    if (initialModels.length > 0) {
+      setModels(initialModels)
+    }
+  }, [initialModels])
+
+  useEffect(() => {
+    if (initialExperiments.length > 0) {
+      setExperiments(initialExperiments)
+    }
+  }, [initialExperiments])
 
   const activeCount = models.filter((m) => m.status === 'active').length
   const avgAccuracy = (models.reduce((s, m) => s + m.health.accuracy, 0) / models.length).toFixed(1)
@@ -30,6 +46,7 @@ export function AdminModelsPage() {
       await new Promise((r) => setTimeout(r, 600))
       setRetrainingProgress(i)
     }
+    updateStatusMutation.mutate({ modelId: model.id, status: 'active' })
     setModels((prev) =>
       prev.map((m) =>
         m.id === model.id

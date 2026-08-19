@@ -9,9 +9,10 @@ import {
   Progress, Badge
 } from '@/components/ui'
 import { EmptyState, ConfidenceBadge } from '@/components/common'
-import { useKnowledgeArticles, useKnowledgeSearch } from '@/features/knowledge/hooks/useKnowledge'
+import { useKnowledgeArticles, useKnowledgeSearch, knowledgeKeys } from '@/features/knowledge/hooks/useKnowledge'
+import { knowledgeService } from '@/features/knowledge/services/knowledgeService'
+import { useQueryClient } from '@tanstack/react-query'
 import { formatDate } from '@/utils'
-import { mockKnowledgeArticles } from '@/mocks'
 import type { KnowledgeArticle, Citation } from '@/types'
 
 
@@ -30,6 +31,7 @@ const STAGE_PROGRESS: Record<PipelineStage, number> = {
 }
 
 function UploadDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const queryClient = useQueryClient()
   const [dragOver, setDragOver] = useState(false)
   const [file, setFile] = useState<File | null>(null)
   const category = 'Runbooks & Troubleshooting'
@@ -87,7 +89,9 @@ function UploadDialog({ open, onClose }: { open: boolean; onClose: () => void })
       updatedAt: new Date().toISOString(),
       relatedTicketIds: ['TKT-1001'],
     }
-    mockKnowledgeArticles.unshift(newArticle)
+    await knowledgeService.createArticle(newArticle)
+    // Invalidate knowledge cache so new records are refetched
+    queryClient.invalidateQueries({ queryKey: knowledgeKeys.all })
   }
 
   const isRunning = stage !== 'idle' && stage !== 'indexed'
@@ -346,7 +350,7 @@ export function KnowledgePage() {
                     key={cite.index}
                     className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border bg-card text-2xs hover:border-primary/40 cursor-pointer transition-colors"
                     onClick={() => {
-                      const match = mockKnowledgeArticles.find((a) => a.id === cite.sourceId)
+                      const match = articles?.find((a) => a.id === cite.sourceId)
                       if (match) setSelectedArticle(match)
                     }}
                   >

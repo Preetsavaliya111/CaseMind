@@ -8,6 +8,10 @@ import {
   useTicketTrends,
   useCategoryDistribution,
 } from '@/features/dashboard/hooks/useDashboard'
+import {
+  useResolutionBuckets,
+  useAiAccuracyTrends,
+} from '@/features/analytics/hooks/useAnalytics'
 import type { AnalyticsTimeRange } from '@/features/analytics/types'
 import {
   TrendingUp, Users, Brain, Clock, Download, Sparkles
@@ -33,6 +37,8 @@ export function AnalyticsPage() {
   const { data: metrics, isLoading: metricsLoading } = useDashboardMetrics()
   const { data: trends, isLoading: trendsLoading } = useTicketTrends()
   const { data: categories, isLoading: categoriesLoading } = useCategoryDistribution()
+  const { data: resolutionBuckets = [] } = useResolutionBuckets(range)
+  const { data: aiAccuracyTrend = [] } = useAiAccuracyTrends(range)
 
   const multiplier = RANGE_MULTIPLIERS[range]
 
@@ -43,27 +49,6 @@ export function AnalyticsPage() {
     created: Math.round(t.created * multiplier * (0.9 + Math.sin(i) * 0.1)),
     resolved: Math.round(t.resolved * multiplier * (0.85 + Math.cos(i) * 0.1)),
   }))
-
-  // Resolution histogram
-  const resolutionBuckets = [
-    { bucket: '<1h', count: Math.round(89 * multiplier) },
-    { bucket: '1–4h', count: Math.round(234 * multiplier) },
-    { bucket: '4–8h', count: Math.round(178 * multiplier) },
-    { bucket: '8–24h', count: Math.round(142 * multiplier) },
-    { bucket: '1–3d', count: Math.round(67 * multiplier) },
-    { bucket: '>3d', count: Math.round(23 * multiplier) },
-  ]
-
-  // AI Model Accuracy over time
-  const aiAccuracyTrend = [
-    { date: '2024-07-09', classification: 94.2, priority: 91.8, memoryMatch: 95.1 },
-    { date: '2024-07-10', classification: 94.8, priority: 92.4, memoryMatch: 95.4 },
-    { date: '2024-07-11', classification: 95.1, priority: 92.1, memoryMatch: 95.0 },
-    { date: '2024-07-12', classification: 95.6, priority: 93.0, memoryMatch: 96.2 },
-    { date: '2024-07-13', classification: 95.8, priority: 93.2, memoryMatch: 96.5 },
-    { date: '2024-07-14', classification: 96.2, priority: 93.8, memoryMatch: 96.8 },
-    { date: '2024-07-15', classification: 96.4, priority: 94.0, memoryMatch: 97.2 },
-  ]
 
   const handleExportCSV = () => {
     setIsExporting(true)
