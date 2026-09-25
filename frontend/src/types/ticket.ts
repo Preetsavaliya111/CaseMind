@@ -15,6 +15,7 @@ export type TicketCategory =
   | 'feature_request'
   | 'billing'
   | 'account'
+  | 'authentication'
   | 'performance'
   | 'security'
   | 'integration'
@@ -46,8 +47,30 @@ export interface TicketComment {
   updatedAt: string
 }
 
+export interface CaseEscalation {
+  id: string
+  actorName: string
+  fromLevel: number
+  toLevel: number
+  reason: string
+  createdAt: string
+}
+
+export interface CaseAttachment {
+  id: string
+  ticketId: string
+  uploadedById: string
+  uploadedByName: string
+  filename: string
+  mediaType: string
+  sizeBytes: number
+  sha256: string
+  createdAt: string
+}
+
 export interface Ticket {
   id: string
+  caseNumber: string
   title: string
   description: string
   status: TicketStatus
@@ -55,13 +78,16 @@ export interface Ticket {
   category: TicketCategory
   assigneeId?: string
   assigneeName?: string
+  teamId?: string
+  departmentId?: string
+  visibility: 'private_customer' | 'assigned_only' | 'team' | 'department' | 'organization' | 'restricted'
   reporterId: string
   reporterName: string
   organizationId: string
   tags: string[]
   aiAnalysis?: TicketAIAnalysis
   comments: TicketComment[]
-  attachments: string[]
+  attachments: CaseAttachment[]
   createdAt: string
   updatedAt: string
   resolvedAt?: string
@@ -69,4 +95,8 @@ export interface Ticket {
   slaDeadline?: string
   slaBreached: boolean
   slaState: 'healthy' | 'at_risk' | 'breached'
+  firstResponseDueAt?: string
+  firstRespondedAt?: string
+  escalationLevel: number
+  escalations: CaseEscalation[]
 }

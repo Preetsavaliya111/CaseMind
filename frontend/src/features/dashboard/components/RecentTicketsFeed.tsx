@@ -17,7 +17,7 @@ export function RecentTicketsFeed({ tickets }: RecentTicketsFeedProps) {
     <Card>
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center justify-between">
-          Recent Tickets
+          Recent cases
           <button
             onClick={() => navigate('/tickets')}
             className="text-xs text-primary hover:underline font-normal"
@@ -35,9 +35,9 @@ export function RecentTicketsFeed({ tickets }: RecentTicketsFeedProps) {
           >
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-0.5">
-                <span className="font-mono text-2xs text-muted-foreground">{ticket.id}</span>
+                <span className="font-mono text-2xs text-muted-foreground">{ticket.caseNumber}</span>
                 {ticket.slaBreached && (
-                  <AlertTriangle className="h-3 w-3 text-red-500 shrink-0" aria-label="SLA breached" />
+                  <AlertTriangle className="h-3 w-3 shrink-0 text-destructive" aria-label="SLA breached" />
                 )}
               </div>
               <p className="text-sm font-medium line-clamp-1">{ticket.title}</p>

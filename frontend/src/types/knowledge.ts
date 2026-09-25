@@ -11,6 +11,7 @@ export interface KnowledgeArticle {
   helpfulCount: number
   unhelpfulCount: number
   isPublished: boolean
+  state?: 'draft' | 'published' | 'archived'
   version: number
   createdAt: string
   updatedAt: string

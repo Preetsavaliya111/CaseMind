@@ -21,7 +21,7 @@ const columns: ColumnDef<Ticket, unknown>[] = [
       <div>
         <p className="font-medium line-clamp-1">{row.original.title}</p>
         {row.original.slaBreached && (
-          <span className="text-2xs text-red-600 dark:text-red-400 font-medium">SLA Breached</span>
+          <span className="text-2xs font-medium text-destructive">SLA Breached</span>
         )}
       </div>
     ),
@@ -71,7 +71,7 @@ export function TicketTable({ tickets, globalFilter, selectable }: TicketTablePr
       globalFilter={globalFilter}
       selectable={selectable}
       onRowClick={(ticket) => navigate(`/tickets/${ticket.id}`)}
-      emptyMessage="No tickets match your filters."
+      emptyMessage="No cases match your filters."
     />
   )
 }

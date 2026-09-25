@@ -1,19 +1,27 @@
-import { Outlet, useLocation } from 'react-router-dom'
+import { NavLink, Outlet, useLocation } from 'react-router-dom'
+import { Brain, Database, LayoutDashboard, MessageSquare, Ticket } from 'lucide-react'
 import { Sidebar } from './Sidebar'
 import { Topbar } from './Topbar'
 import { ErrorBoundary } from '@/components/common'
+import { useAuth } from '@/app/providers'
+import { hasPermission, type Permission } from '@/permissions'
 
 const pageTitles: Record<string, string> = {
   '/dashboard':     'Dashboard',
-  '/tickets/new':   'Create Ticket',
-  '/tickets':       'Tickets',
+  '/tickets/new':   'Create Case',
+  '/tickets':       'Cases',
   '/memory':        'Organizational Memory',
   '/knowledge':     'Knowledge Base',
+  '/documents':     'Documents',
   '/analytics':     'Analytics',
-  '/chat':          'AI Assistant',
+  '/teams':         'Teams & Departments',
+  '/sla':           'SLA & Escalations',
+  '/notifications': 'Notifications',
+  '/chat':          'Evidence Workspace',
   '/settings':      'Settings',
-  '/admin/models':  'Model Monitoring',
+  '/admin/models':  'AI Governance',
   '/admin/users':   'User Management',
+  '/admin/audit':   'Audit Log',
 }
 
 function resolveTitle(pathname: string): string {
@@ -38,13 +46,29 @@ export function AppLayout() {
       <Sidebar />
       <div className="flex flex-1 flex-col overflow-hidden">
         <Topbar title={title} />
-        <main id="main-content" tabIndex={-1} className="flex-1 overflow-y-auto focus:outline-none">
+        <main id="main-content" tabIndex={-1} className="flex-1 overflow-y-auto pb-20 focus:outline-none md:pb-0">
           <ErrorBoundary>
             <Outlet />
           </ErrorBoundary>
         </main>
+        <MobileNavigation />
       </div>
     </div>
   )
+}
+
+const mobileItems = [
+  { to: '/dashboard', label: 'Home', icon: LayoutDashboard },
+  { to: '/tickets', label: 'Cases', icon: Ticket },
+  { to: '/chat', label: 'Ask', icon: MessageSquare, permission: 'chat.use' as Permission },
+  { to: '/memory', label: 'Memory', icon: Database, permission: 'memory.view' as Permission },
+]
+
+function MobileNavigation() {
+  const { user } = useAuth()
+  return <nav className="fixed inset-x-0 bottom-0 z-40 flex h-16 border-t border-sidebar-border bg-sidebar/95 px-2 backdrop-blur-xl md:hidden" aria-label="Mobile navigation">
+    {mobileItems.filter((item) => !item.permission || hasPermission(user, item.permission)).map(({ to, label, icon: Icon }) => <NavLink key={to} to={to} className={({ isActive }) => `flex flex-1 flex-col items-center justify-center gap-1 text-[10px] ${isActive ? 'text-sidebar-foreground' : 'text-sidebar-foreground/45'}`}><Icon className="h-4 w-4" />{label}</NavLink>)}
+    <NavLink to="/knowledge" className={({ isActive }) => `flex flex-1 flex-col items-center justify-center gap-1 text-[10px] ${isActive ? 'text-sidebar-foreground' : 'text-sidebar-foreground/45'}`}><Brain className="h-4 w-4" />Knowledge</NavLink>
+  </nav>
 }
 

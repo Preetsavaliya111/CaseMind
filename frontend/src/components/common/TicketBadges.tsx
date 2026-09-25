@@ -11,14 +11,14 @@ const priorityConfig: Record<TicketPriority, { label: string; variant: BadgeProp
 }
 
 const statusConfig: Record<TicketStatus, { label: string; className: string }> = {
-  new: { label: 'New', className: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400' },
-  assigned: { label: 'Assigned', className: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400' },
-  in_progress: { label: 'In Progress', className: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400' },
-  waiting_customer: { label: 'Waiting Customer', className: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400' },
-  waiting_engineering: { label: 'Waiting Eng.', className: 'bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-400' },
-  resolved: { label: 'Resolved', className: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400' },
-  closed: { label: 'Closed', className: 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400' },
-  reopened: { label: 'Reopened', className: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' },
+  new: { label: 'New', className: 'border border-info/30 bg-info/10 text-info' },
+  assigned: { label: 'Assigned', className: 'border border-info/25 bg-info/10 text-info' },
+  in_progress: { label: 'In Progress', className: 'border border-info/25 bg-info/10 text-info' },
+  waiting_customer: { label: 'Waiting Customer', className: 'border border-warning/30 bg-warning/10 text-warning' },
+  waiting_engineering: { label: 'Waiting Eng.', className: 'border border-warning/30 bg-warning/10 text-warning' },
+  resolved: { label: 'Resolved', className: 'border border-success/30 bg-success/10 text-success' },
+  closed: { label: 'Closed', className: 'border border-border bg-muted text-muted-foreground' },
+  reopened: { label: 'Reopened', className: 'border border-destructive/30 bg-destructive/10 text-destructive' },
 }
 
 export function PriorityBadge({ priority }: { priority: TicketPriority }) {

@@ -2,12 +2,12 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recha
 import type { CategoryDistribution } from '@/types'
 
 const COLORS = [
-  'hsl(221,83%,53%)',
-  'hsl(160,84%,39%)',
-  'hsl(38,92%,50%)',
-  'hsl(280,65%,60%)',
-  'hsl(0,84%,60%)',
-  'hsl(200,80%,50%)',
+  'hsl(60,13%,95%)',
+  'hsl(216,6%,66%)',
+  'hsl(214,5%,48%)',
+  'hsl(213,10%,32%)',
+  'hsl(213,10%,24%)',
+  'hsl(214,10%,14%)',
 ]
 
 interface CategoryPieChartProps {
@@ -39,7 +39,7 @@ export function CategoryPieChart({ data }: CategoryPieChartProps) {
             borderRadius: '6px',
             fontSize: '12px',
           }}
-          formatter={(value: number, name: string) => [`${value} tickets`, name]}
+          formatter={(value: number, name: string) => [`${value} cases`, name]}
         />
         <Legend wrapperStyle={{ fontSize: '12px' }} />
       </PieChart>

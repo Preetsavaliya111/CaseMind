@@ -6,12 +6,12 @@ interface CategoryBreakdownProps {
 }
 
 const categoryColors: Record<string, string> = {
-  Bug: 'bg-red-500',
-  'Feature Request': 'bg-blue-500',
-  Performance: 'bg-amber-500',
-  Integration: 'bg-purple-500',
-  Billing: 'bg-emerald-500',
-  Security: 'bg-orange-500',
+  Bug: 'bg-primary',
+  'Feature Request': 'bg-muted-foreground',
+  Performance: 'bg-info',
+  Integration: 'bg-success',
+  Billing: 'bg-warning',
+  Security: 'bg-destructive',
 }
 
 export function CategoryBreakdown({ data }: CategoryBreakdownProps) {

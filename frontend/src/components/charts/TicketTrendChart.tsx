@@ -15,12 +15,12 @@ export function TicketTrendChart({ data }: TicketTrendChartProps) {
       <AreaChart data={data} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
         <defs>
           <linearGradient id="colorCreated" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor="hsl(221,83%,53%)" stopOpacity={0.15} />
-            <stop offset="95%" stopColor="hsl(221,83%,53%)" stopOpacity={0} />
+            <stop offset="5%" stopColor="hsl(var(--color-info))" stopOpacity={0.15} />
+            <stop offset="95%" stopColor="hsl(var(--color-info))" stopOpacity={0} />
           </linearGradient>
           <linearGradient id="colorResolved" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor="hsl(160,84%,39%)" stopOpacity={0.15} />
-            <stop offset="95%" stopColor="hsl(160,84%,39%)" stopOpacity={0} />
+            <stop offset="5%" stopColor="hsl(var(--color-success))" stopOpacity={0.15} />
+            <stop offset="95%" stopColor="hsl(var(--color-success))" stopOpacity={0} />
           </linearGradient>
         </defs>
         <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
@@ -42,8 +42,8 @@ export function TicketTrendChart({ data }: TicketTrendChartProps) {
           labelFormatter={(v) => formatDate(v as string, 'MMM d, yyyy')}
         />
         <Legend wrapperStyle={{ fontSize: '12px' }} />
-        <Area type="monotone" dataKey="created" name="Created" stroke="hsl(221,83%,53%)" fill="url(#colorCreated)" strokeWidth={2} dot={false} />
-        <Area type="monotone" dataKey="resolved" name="Resolved" stroke="hsl(160,84%,39%)" fill="url(#colorResolved)" strokeWidth={2} dot={false} />
+        <Area type="monotone" dataKey="created" name="Created" stroke="hsl(var(--color-info))" fill="url(#colorCreated)" strokeWidth={2} dot={false} />
+        <Area type="monotone" dataKey="resolved" name="Resolved" stroke="hsl(var(--color-success))" fill="url(#colorResolved)" strokeWidth={2} dot={false} />
       </AreaChart>
     </ResponsiveContainer>
   )

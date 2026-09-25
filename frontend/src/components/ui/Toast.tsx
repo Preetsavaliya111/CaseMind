@@ -25,7 +25,7 @@ const Toast = React.forwardRef<
     className={cn(
       'group pointer-events-auto relative flex w-full items-center justify-between space-x-2 overflow-hidden rounded-md border p-4 pr-6 shadow-lg transition-all data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[state=open]:animate-fade-in data-[state=closed]:opacity-0',
       variant === 'destructive' && 'border-destructive bg-destructive text-destructive-foreground',
-      variant === 'success' && 'border-emerald-200 bg-emerald-50 text-emerald-900 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-100',
+      variant === 'success' && 'border-success/30 bg-success/10 text-success',
       variant === 'default' && 'border bg-background text-foreground',
       className,
     )}

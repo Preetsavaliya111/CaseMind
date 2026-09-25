@@ -9,7 +9,7 @@ const ticketSchema = z.object({
   title: z.string().min(10, 'Title must be at least 10 characters').max(200),
   description: z.string().min(30, 'Description must be at least 30 characters'),
   priority: z.enum(['critical', 'high', 'medium', 'low']),
-  category: z.enum(['bug', 'feature_request', 'billing', 'account', 'performance', 'security', 'integration', 'other']),
+  category: z.enum(['bug', 'feature_request', 'billing', 'account', 'authentication', 'performance', 'security', 'integration', 'other']),
 })
 
 export type CreateTicketFormData = z.infer<typeof ticketSchema>
@@ -78,6 +78,7 @@ export function CreateTicketForm({ onSubmit, onCancel }: CreateTicketFormProps) 
             <SelectContent>
               <SelectItem value="bug">Bug</SelectItem>
               <SelectItem value="feature_request">Feature Request</SelectItem>
+              <SelectItem value="authentication">Authentication</SelectItem>
               <SelectItem value="performance">Performance</SelectItem>
               <SelectItem value="security">Security</SelectItem>
               <SelectItem value="integration">Integration</SelectItem>
@@ -96,7 +97,7 @@ export function CreateTicketForm({ onSubmit, onCancel }: CreateTicketFormProps) 
           </Button>
         )}
         <Button type="submit" loading={isSubmitting}>
-          Create Ticket
+          Create case
         </Button>
       </div>
     </form>

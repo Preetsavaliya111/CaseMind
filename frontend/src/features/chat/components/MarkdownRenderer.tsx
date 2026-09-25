@@ -11,14 +11,47 @@ interface MarkdownRendererProps {
  */
 export function MarkdownRenderer({ content, className }: MarkdownRendererProps) {
   const lines = content.split('\n')
+  const tableStarts = new Map<number, string[][]>()
+  const consumedTableLines = new Set<number>()
+
+  for (let index = 0; index < lines.length - 1; index += 1) {
+    if (!lines[index].trim().startsWith('|') || !/^\|?[\s:|-]+\|?$/.test(lines[index + 1].trim())) continue
+    const rows = [splitTableRow(lines[index])]
+    let cursor = index + 2
+    while (cursor < lines.length && lines[cursor].trim().startsWith('|')) {
+      rows.push(splitTableRow(lines[cursor]))
+      consumedTableLines.add(cursor)
+      cursor += 1
+    }
+    tableStarts.set(index, rows)
+    consumedTableLines.add(index + 1)
+    index = cursor - 1
+  }
 
   return (
     <div className={cn('space-y-2 text-xs md:text-sm leading-relaxed', className)}>
       {lines.map((line, index) => {
         const trimmed = line.trim()
+        if (consumedTableLines.has(index)) return null
+
+        const table = tableStarts.get(index)
+        if (table) {
+          const [header, ...rows] = table
+          return (
+            <div key={index} className="overflow-x-auto rounded-lg border">
+              <table className="w-full min-w-[32rem] border-collapse text-left text-xs">
+                <thead className="bg-muted/60"><tr>{header.map((cell, cellIndex) => <th key={cellIndex} className="border-b px-3 py-2 font-semibold">{formatInline(cell)}</th>)}</tr></thead>
+                <tbody>{rows.map((row, rowIndex) => <tr key={rowIndex} className="border-b last:border-0">{row.map((cell, cellIndex) => <td key={cellIndex} className="px-3 py-2 align-top text-muted-foreground">{formatInline(cell)}</td>)}</tr>)}</tbody>
+              </table>
+            </div>
+          )
+        }
+
         if (!trimmed) {
           return <div key={index} className="h-1.5" />
         }
+
+        if (/^[-*_]{3,}$/.test(trimmed)) return <hr key={index} className="my-3 border-border" />
 
         // Header 3: ### Title
         if (trimmed.startsWith('### ')) {
@@ -71,6 +104,10 @@ export function MarkdownRenderer({ content, className }: MarkdownRendererProps) 
       })}
     </div>
   )
+}
+
+function splitTableRow(line: string): string[] {
+  return line.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map((cell) => cell.trim())
 }
 
 function formatInline(text: string): React.ReactNode[] {

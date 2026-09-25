@@ -127,13 +127,15 @@ export function TicketsPage() {
     setPage(1)
   }
 
+  const hasActiveFilters = Boolean(search) || status !== 'all' || priority !== 'all' || slaFilter !== 'all'
+
   return (
     <div className="p-6 space-y-4 animate-fade-in max-w-7xl mx-auto">
-      {/* Header & New Ticket Button */}
+      {/* Header & New Case Button */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold font-display tracking-tight text-foreground">
-            Support Tickets
+            Cases
           </h1>
           <p className="text-xs text-muted-foreground mt-0.5">
             Monitor, triage, and resolve customer support incidents across your organization.
@@ -143,7 +145,7 @@ export function TicketsPage() {
         {canCreate && (
           <Button size="sm" onClick={() => navigate('/tickets/new')} className="gap-1.5 shrink-0">
             <Plus className="h-4 w-4" aria-hidden="true" />
-            New Ticket
+            New Case
           </Button>
         )}
       </div>
@@ -158,7 +160,7 @@ export function TicketsPage() {
               className="pl-8 pr-8 text-xs h-9"
               value={search}
               onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-              aria-label="Search tickets"
+              aria-label="Search cases"
             />
             {search && (
               <button
@@ -221,14 +223,20 @@ export function TicketsPage() {
         </div>
       </div>
 
-      {/* Ticket Table */}
+      {/* Case Table */}
       {isLoading ? (
         <SkeletonTable rows={8} />
       ) : !paginatedTickets.length ? (
         <EmptyState
-          title="No tickets match your filters"
-          description="Try broadening your search or resetting active filters."
-          action={{ label: 'Clear all filters', onClick: clearFilters }}
+          title={hasActiveFilters ? 'No cases match your filters' : 'No cases yet'}
+          description={hasActiveFilters
+            ? 'Try broadening your search or resetting the active filters.'
+            : 'Create your first case to start building a searchable record of support work.'}
+          action={hasActiveFilters
+            ? { label: 'Clear all filters', onClick: clearFilters }
+            : canCreate
+              ? { label: 'Create first case', onClick: () => navigate('/tickets/new') }
+              : undefined}
         />
       ) : (
         <div className="rounded-xl border overflow-hidden bg-card shadow-sm">
@@ -281,7 +289,7 @@ export function TicketsPage() {
                     onClick={() => navigate(`/tickets/${ticket.id}`)}
                   >
                     <td className="px-4 py-3 font-mono text-xs font-semibold text-primary">
-                      {ticket.id}
+                      {ticket.caseNumber}
                     </td>
                     <td className="px-4 py-3">
                       <div className="font-medium text-foreground line-clamp-1 group-hover:text-primary transition-colors">
@@ -315,8 +323,8 @@ export function TicketsPage() {
                         <button
                           onClick={() => setDeleteTarget(ticket)}
                           className="inline-flex items-center justify-center h-7 w-7 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
-                          aria-label={`Delete ticket ${ticket.id}`}
-                          title="Delete ticket"
+                          aria-label={`Archive case ${ticket.id}`}
+                          title="Archive case"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                         </button>
@@ -333,7 +341,7 @@ export function TicketsPage() {
             <span>
               Showing <strong className="text-foreground">{(page - 1) * pageSize + 1}</strong> to{' '}
               <strong className="text-foreground">{Math.min(page * pageSize, totalCount)}</strong> of{' '}
-              <strong className="text-foreground">{totalCount}</strong> tickets
+              <strong className="text-foreground">{totalCount}</strong> cases
             </span>
 
             <div className="flex items-center gap-2">
@@ -365,16 +373,16 @@ export function TicketsPage() {
         </div>
       )}
 
-      {/* Delete Confirmation Dialog */}
+      {/* Archive Confirmation Dialog */}
       <Dialog open={Boolean(deleteTarget)} onOpenChange={(open) => !open && setDeleteTarget(null)}>
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-destructive">
               <AlertTriangle className="h-5 w-5" aria-hidden="true" />
-              Delete Ticket
+              Archive Case
             </DialogTitle>
             <DialogDescription className="pt-1 text-xs">
-              Are you sure you want to permanently delete ticket <strong className="text-foreground">{deleteTarget?.id}</strong>? This action cannot be reversed.
+              Archive case <strong className="text-foreground">{deleteTarget?.id}</strong>? It will be removed from active views while its record remains retained.
             </DialogDescription>
           </DialogHeader>
 
@@ -393,7 +401,7 @@ export function TicketsPage() {
               onClick={handleDeleteConfirm}
               loading={isDeleting}
             >
-              Delete Ticket
+              Archive Case
             </Button>
           </div>
         </DialogContent>

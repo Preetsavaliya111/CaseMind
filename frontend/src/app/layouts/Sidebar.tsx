@@ -1,13 +1,16 @@
 import { NavLink, useLocation } from 'react-router-dom'
 import {
   LayoutDashboard, Ticket, Database, BookOpen, BarChart3, MessageSquare,
-  Settings, Brain, ChevronLeft, ChevronRight, Cpu, Users,
+  Settings, Brain, ChevronLeft, ChevronRight, Cpu, Users, Files,
+  Network,
+  ScrollText,
+  Timer,
 } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
 import { cn } from '@/utils'
 import { useAuth } from '@/app/providers'
 import { hasPermission, type Permission } from '@/permissions'
-import { useDashboardMetrics } from '@/features/dashboard/hooks/useDashboard'
+import { useDashboardOverview } from '@/features/dashboard/hooks/useDashboard'
 
 interface NavItem {
   to: string
@@ -18,17 +21,21 @@ interface NavItem {
 
 const mainNav: NavItem[] = [
   { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { to: '/tickets', icon: Ticket, label: 'Tickets', permission: 'tickets.view' },
-  { to: '/memory', icon: Database, label: 'Org Memory', permission: 'memory.view' },
+  { to: '/tickets', icon: Ticket, label: 'Cases', permission: 'tickets.view' },
+  { to: '/memory', icon: Database, label: 'Memory', permission: 'memory.view' },
   { to: '/knowledge', icon: BookOpen, label: 'Knowledge', permission: 'knowledge.view' },
+  { to: '/documents', icon: Files, label: 'Documents', permission: 'documents.view' },
   { to: '/analytics', icon: BarChart3, label: 'Analytics', permission: 'analytics.view' },
-  { to: '/chat', icon: MessageSquare, label: 'AI Assistant', permission: 'chat.use' },
+  { to: '/teams', icon: Network, label: 'Teams', permission: 'teams.view' },
+  { to: '/sla', icon: Timer, label: 'SLA & Escalations', permission: 'sla.view' },
+  { to: '/chat', icon: MessageSquare, label: 'Evidence AI', permission: 'chat.use' },
   { to: '/settings', icon: Settings, label: 'Settings' },
 ]
 
 const adminNav: NavItem[] = [
-  { to: '/admin/models', icon: Cpu, label: 'Model Monitoring', permission: 'admin.models' },
-  { to: '/admin/users', icon: Users, label: 'User Management', permission: 'admin.users' },
+  { to: '/admin/models', icon: Cpu, label: 'AI Governance', permission: 'admin.models' },
+  { to: '/admin/users', icon: Users, label: 'People & Roles', permission: 'admin.users' },
+  { to: '/admin/audit', icon: ScrollText, label: 'Audit Log', permission: 'admin.audit' },
 ]
 
 
@@ -50,10 +57,10 @@ export function Sidebar() {
   const [collapsed, setCollapsed] = useState(false)
   const location = useLocation()
   const { user } = useAuth()
-  const { data: metrics } = useDashboardMetrics()
+  const { data: metrics } = useDashboardOverview()
   const logoRef = useRef<HTMLDivElement>(null)
 
-  const pulseDuration = metrics ? getPulseDuration(metrics.resolvedToday) : null
+  const pulseDuration = metrics ? getPulseDuration(metrics.resolved_today) : null
 
   // Drive --pulse-duration on the logo element so CSS animation speed reflects real data
   useEffect(() => {
@@ -66,7 +73,7 @@ export function Sidebar() {
   return (
     <aside
       className={cn(
-        'relative flex flex-col h-screen bg-sidebar border-r border-sidebar-border transition-all duration-300',
+        'relative hidden md:flex flex-col h-screen bg-sidebar border-r border-sidebar-border transition-all duration-300',
         collapsed ? 'w-16' : 'w-60',
       )}
       aria-label="Main navigation"
@@ -81,12 +88,12 @@ export function Sidebar() {
               aria-hidden="true"
             />
           )}
-          <div className="relative flex h-8 w-8 items-center justify-center rounded-lg bg-primary z-10">
-            <Brain className="h-4 w-4 text-white" aria-hidden="true" />
+          <div className="relative z-10 flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+            <Brain className="h-4 w-4" aria-hidden="true" />
           </div>
         </div>
         {!collapsed && (
-          <span className="font-display font-bold text-sidebar-foreground text-sm tracking-display">CaseMind</span>
+          <span className="font-display font-bold text-sidebar-foreground text-xs tracking-[0.12em]">CASEMIND</span>
         )}
       </div>
 
@@ -154,7 +161,7 @@ export function Sidebar() {
         <div className="px-3 pb-2 flex justify-center">
           <span
             className="h-1.5 w-1.5 rounded-full bg-primary opacity-70"
-            title={`Memory active — ${metrics?.resolvedToday} resolved today`}
+            title={`Memory active — ${metrics?.resolved_today} resolved today`}
             aria-hidden="true"
           />
         </div>
@@ -169,12 +176,12 @@ export function Sidebar() {
             </div>
             <div className="min-w-0">
               <p className="text-xs font-medium text-sidebar-foreground truncate">{user.name}</p>
-              <p className="text-2xs text-sidebar-foreground/50 truncate capitalize">{user.role}</p>
+              <p className="text-2xs text-sidebar-foreground/50 truncate capitalize">{(user.roles[0] ?? user.role).replace(/_/g, ' ')}</p>
             </div>
           </div>
           {pulseDuration !== null && (
             <p className="text-2xs text-primary/60 mt-1.5 truncate">
-              ↑ {metrics?.resolvedToday} resolutions today
+              ↑ {metrics?.resolved_today} resolutions today
             </p>
           )}
         </div>

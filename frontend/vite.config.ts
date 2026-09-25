@@ -1,21 +1,22 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import path from 'path'
+import path from 'node:path'
+
+const src = (directory: string) => path.resolve(import.meta.dirname, directory)
 
 export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
-      '@components': path.resolve(__dirname, './src/components'),
-      '@features': path.resolve(__dirname, './src/features'),
-      '@hooks': path.resolve(__dirname, './src/hooks'),
-      '@services': path.resolve(__dirname, './src/services'),
-      '@types': path.resolve(__dirname, './src/types'),
-      '@utils': path.resolve(__dirname, './src/utils'),
-      '@mocks': path.resolve(__dirname, './src/mocks'),
-      '@styles': path.resolve(__dirname, './src/styles'),
-      '@assets': path.resolve(__dirname, './src/assets'),
+      '@': src('./src'),
+      '@components': src('./src/components'),
+      '@features': src('./src/features'),
+      '@hooks': src('./src/hooks'),
+      '@services': src('./src/services'),
+      '@types': src('./src/types'),
+      '@utils': src('./src/utils'),
+      '@styles': src('./src/styles'),
+      '@assets': src('./src/assets'),
     },
   },
   server: {
@@ -30,11 +31,13 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom'],
-          query: ['@tanstack/react-query'],
-          charts: ['recharts'],
-          motion: ['framer-motion'],
+        manualChunks(id) {
+          if (!id.includes('node_modules')) return undefined
+          if (id.includes('recharts')) return 'charts'
+          if (id.includes('@tanstack/react-query')) return 'query'
+          if (id.includes('framer-motion')) return 'motion'
+          if (id.includes('react') || id.includes('scheduler')) return 'vendor'
+          return undefined
         },
       },
     },

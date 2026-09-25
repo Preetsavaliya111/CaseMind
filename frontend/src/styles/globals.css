@@ -3,132 +3,92 @@
 @tailwind utilities;
 
 @layer base {
-  :root,
-  .dark {
-    --background: 222 47% 7%;
-    --foreground: 210 40% 96%;
-
-    --card: 222 47% 10%;
-    --card-foreground: 210 40% 96%;
-
-    --popover: 222 47% 10%;
-    --popover-foreground: 210 40% 96%;
-
-    --primary: 221 83% 60%;
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 217 33% 17%;
-    --secondary-foreground: 210 40% 96%;
-
-    --muted: 217 33% 17%;
-    --muted-foreground: 215 20% 65%;
-
-    --accent: 217 33% 17%;
-    --accent-foreground: 210 40% 96%;
-
-    --destructive: 0 63% 50%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 217 33% 17%;
-    --input: 217 33% 17%;
-    --ring: 221 83% 60%;
-
-    --radius: 0.5rem;
-
-    --sidebar: 222 47% 5%;
-    --sidebar-foreground: 210 40% 96%;
-    --sidebar-border: 217 33% 12%;
-    --sidebar-accent: 217 33% 12%;
-    --sidebar-accent-foreground: 210 40% 96%;
-
-    /* Semantic tokens */
+  :root, .dark {
+    --background: 210 13% 3%;
+    --foreground: 60 13% 95%;
+    --card: 210 11% 7%;
+    --card-foreground: 60 13% 95%;
+    --popover: 210 12% 10%;
+    --popover-foreground: 60 13% 95%;
+    --primary: 60 13% 95%;
+    --primary-foreground: 210 18% 4%;
+    --secondary: 210 12% 10%;
+    --secondary-foreground: 60 11% 91%;
+    --muted: 210 12% 10%;
+    --muted-foreground: 216 6% 66%;
+    --accent: 214 10% 14%;
+    --accent-foreground: 60 13% 95%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 18% 4%;
+    --border: 213 10% 18%;
+    --input: 213 10% 18%;
+    --ring: 216 6% 66%;
+    --radius: 0.75rem;
+    --sidebar: 210 18% 4%;
+    --sidebar-foreground: 60 13% 95%;
+    --sidebar-border: 213 10% 18%;
+    --sidebar-accent: 214 10% 14%;
+    --sidebar-accent-foreground: 60 13% 95%;
     --color-success: 142 71% 45%;
     --color-warning: 38 92% 50%;
-    --color-danger: 0 63% 50%;
-    --color-info: 199 89% 48%;
-    /* AI / Organizational Memory — purple accent */
-    --color-ai: 262 83% 58%;  /* #8B5CF6 */
-
-    /* Motion duration tokens */
+    --color-danger: 0 84% 60%;
+    --color-info: 217 91% 68%;
+    --color-ai: 217 91% 68%;
     --duration-fast: 120ms;
     --duration-base: 200ms;
     --duration-slow: 350ms;
-
-    /* Memory Pulse — driven by JS custom property */
     --pulse-duration: 3s;
   }
-}
 
-@layer base {
-  * {
-    @apply border-border;
-  }
-
+  * { @apply border-border; }
+  html { scroll-behavior: smooth; }
   body {
     @apply bg-background text-foreground font-sans antialiased;
     font-feature-settings: 'rlig' 1, 'calt' 1;
+    background-image: radial-gradient(circle at 50% -20%, hsl(213 10% 18% / 0.5), transparent 40%);
   }
+  :focus-visible { @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background; }
+  ::selection { @apply bg-primary/20; }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { @apply bg-transparent; }
+  ::-webkit-scrollbar-thumb { @apply rounded-full bg-muted-foreground/20; }
+  ::-webkit-scrollbar-thumb:hover { @apply bg-muted-foreground/35; }
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  textarea:-webkit-autofill,
+  select:-webkit-autofill {
+    -webkit-text-fill-color: hsl(var(--foreground));
+    caret-color: hsl(var(--foreground));
+    box-shadow: 0 0 0 1000px hsl(var(--background)) inset;
+    transition: background-color 9999s ease-out 0s;
+  }
+}
 
-  :focus-visible {
-    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+@layer components {
+  .mono-grid {
+    background-image: linear-gradient(hsl(60 13% 95% / 0.035) 1px, transparent 1px), linear-gradient(90deg, hsl(60 13% 95% / 0.035) 1px, transparent 1px);
+    background-size: 44px 44px;
+    mask-image: linear-gradient(to bottom, black 35%, transparent 92%);
   }
-
-  ::selection {
-    @apply bg-primary/20;
-  }
-
-  ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-  ::-webkit-scrollbar-track {
-    @apply bg-transparent;
-  }
-  ::-webkit-scrollbar-thumb {
-    @apply bg-border rounded-full;
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    @apply bg-muted-foreground/40;
-  }
+  .hairline-card { @apply border border-border bg-card shadow-[0_1px_0_hsl(var(--foreground)/0.04)_inset]; }
+  .eyebrow { @apply font-mono text-[10px] font-medium uppercase tracking-[0.24em] text-muted-foreground; }
 }
 
 @layer utilities {
-  .skeleton {
-    @apply animate-shimmer bg-gradient-to-r from-muted via-muted/50 to-muted bg-[length:200%_100%];
-  }
-
-  .text-balance {
-    text-wrap: balance;
-  }
-
-  .scrollbar-none {
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-  }
-  .scrollbar-none::-webkit-scrollbar {
-    display: none;
-  }
-
-  /* Memory Pulse ring — speed set via --pulse-duration CSS var from JS */
-  .memory-pulse {
-    animation: pulse-ring var(--pulse-duration, 3s) ease-in-out infinite;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .memory-pulse {
-      animation: none;
-      opacity: 0.4;
-    }
-  }
+  .skeleton { @apply animate-shimmer bg-gradient-to-r from-muted via-foreground/10 to-muted bg-[length:200%_100%]; }
+  .text-balance { text-wrap: balance; }
+  .scrollbar-none { scrollbar-width: none; -ms-overflow-style: none; }
+  .scrollbar-none::-webkit-scrollbar { display: none; }
+  .memory-pulse { animation: pulse-ring var(--pulse-duration, 3s) ease-in-out infinite; }
 }
 
 @keyframes pulse-ring {
-  0%, 100% {
-    opacity: 0.15;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.55;
-    transform: scale(1.18);
-  }
+  0%, 100% { opacity: 0.12; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(1.18); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .memory-pulse, .animate-float-slow, .animate-marquee, .animate-fade-in { animation: none !important; }
 }

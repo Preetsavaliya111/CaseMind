@@ -27,7 +27,7 @@ function createApiClient(): AxiosInstance {
         }
       }
       const apiError: ApiError = {
-        message: error.response?.data?.message ?? 'An unexpected error occurred',
+        message: error.response?.data?.message ?? error.response?.data?.detail ?? 'An unexpected error occurred',
         code: error.response?.data?.code ?? 'UNKNOWN_ERROR',
         statusCode: error.response?.status ?? 500,
         details: error.response?.data?.details,

@@ -53,24 +53,24 @@ export default {
         // Semantic tokens
         success: {
           DEFAULT: 'hsl(var(--color-success))',
-          foreground: 'hsl(0 0% 100%)',
+          foreground: 'hsl(var(--primary-foreground))',
         },
         warning: {
           DEFAULT: 'hsl(var(--color-warning))',
-          foreground: 'hsl(0 0% 100%)',
+          foreground: 'hsl(var(--primary-foreground))',
         },
         danger: {
           DEFAULT: 'hsl(var(--color-danger))',
-          foreground: 'hsl(0 0% 100%)',
+          foreground: 'hsl(var(--primary-foreground))',
         },
         info: {
           DEFAULT: 'hsl(var(--color-info))',
-          foreground: 'hsl(0 0% 100%)',
+          foreground: 'hsl(var(--primary-foreground))',
         },
-        // AI / Organizational Memory — purple accent (#8B5CF6)
+        // AI / Organizational Memory — evidence blue from the Ink Wash system
         ai: {
           DEFAULT: 'hsl(var(--color-ai))',
-          foreground: 'hsl(0 0% 100%)',
+          foreground: 'hsl(var(--primary-foreground))',
         },
       },
       borderRadius: {
@@ -79,9 +79,9 @@ export default {
         sm: 'calc(var(--radius) - 4px)',
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
-        display: ['Inter', 'system-ui', 'sans-serif'],
-        mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
+        sans: ['DM Sans', 'system-ui', 'sans-serif'],
+        display: ['Manrope', 'system-ui', 'sans-serif'],
+        mono: ['IBM Plex Mono', 'monospace'],
       },
       fontSize: {
         '2xs': ['0.625rem', { lineHeight: '0.875rem' }],
@@ -103,8 +103,16 @@ export default {
           to: { height: '0' },
         },
         'fade-in': {
-          from: { opacity: '0', transform: 'translateY(4px)' },
+          from: { opacity: '0', transform: 'translateY(12px)' },
           to: { opacity: '1', transform: 'translateY(0)' },
+        },
+        'float-slow': {
+          '0%, 100%': { transform: 'translateY(0px)' },
+          '50%': { transform: 'translateY(-10px)' },
+        },
+        marquee: {
+          from: { transform: 'translateX(0)' },
+          to: { transform: 'translateX(-50%)' },
         },
         'slide-in-right': {
           from: { transform: 'translateX(100%)' },
@@ -118,7 +126,9 @@ export default {
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
-        'fade-in': 'fade-in 0.2s ease-out',
+        'fade-in': 'fade-in 0.55s cubic-bezier(0.16,1,0.3,1) both',
+        'float-slow': 'float-slow 6s ease-in-out infinite',
+        marquee: 'marquee 28s linear infinite',
         'slide-in-right': 'slide-in-right 0.3s ease-out',
         shimmer: 'shimmer 2s linear infinite',
       },

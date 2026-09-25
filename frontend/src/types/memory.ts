@@ -41,3 +41,37 @@ export interface MemoryMatchResult {
   similarityScore: number   // 0–1
   matchedFields: string[]   // which fields triggered the match
 }
+
+export type MemoryItemType = 'issue_pattern' | 'root_cause' | 'resolution' | 'workaround' | 'known_limitation' | 'troubleshooting' | 'incident_insight'
+export type MemoryVerificationState = 'draft' | 'verified' | 'deprecated'
+
+export interface MemoryItemSource {
+  id: string
+  sourceType: 'case' | 'document'
+  sourceId: string
+  sourceTitle: string
+  sourceLocator?: string
+  createdAt: string
+}
+
+export interface MemoryItem {
+  id: string
+  title: string
+  summary: string
+  memoryType: MemoryItemType
+  issuePattern: string
+  rootCause?: string
+  resolutionSteps: string[]
+  confidence?: number
+  verificationState: MemoryVerificationState
+  tags: string[]
+  product?: string
+  category?: string
+  usageCount: number
+  createdByName: string
+  verifiedByName?: string
+  sources: MemoryItemSource[]
+  createdAt: string
+  updatedAt: string
+  lastValidatedAt?: string
+}

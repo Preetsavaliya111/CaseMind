@@ -43,6 +43,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 def create_access_token(
     subject: str,
+    token_version: int = 0,
     expires_delta: Optional[timedelta] = None,
 ) -> str:
     """
@@ -60,6 +61,8 @@ def create_access_token(
     payload = {
         "sub": subject,
         "exp": expire,
+        "typ": "access",
+        "ver": token_version,
     }
 
     return jwt.encode(
@@ -69,7 +72,7 @@ def create_access_token(
     )
 
 
-def decode_access_token(token: str) -> Optional[str]:
+def decode_access_token(token: str) -> Optional[tuple[str, int]]:
     """
     Decode and validate a JWT access token.
 
@@ -87,10 +90,25 @@ def decode_access_token(token: str) -> Optional[str]:
 
         subject = payload.get("sub")
 
-        if not subject:
+        if not subject or payload.get("typ") != "access":
             return None
 
-        return str(subject)
+        return str(subject), int(payload.get("ver", -1))
 
+    except JWTError:
+        return None
+
+
+def create_mfa_challenge_token(subject: str) -> str:
+    expire = datetime.now(timezone.utc) + timedelta(minutes=5)
+    return jwt.encode({"sub": subject, "exp": expire, "typ": "mfa"}, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+
+
+def decode_mfa_challenge_token(token: str) -> Optional[str]:
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        if payload.get("typ") != "mfa" or not payload.get("sub"):
+            return None
+        return str(payload["sub"])
     except JWTError:
         return None

@@ -53,7 +53,7 @@ export function ArticleViewer({ article }: ArticleViewerProps) {
         <div className="space-y-2 pt-2 border-t">
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-1.5">
             <Ticket className="h-3.5 w-3.5" aria-hidden="true" />
-            Related Tickets
+            Related cases
           </p>
           <div className="flex flex-wrap gap-2">
             {article.relatedTicketIds.map((id) => (

@@ -47,11 +47,26 @@ export function useUpdateTicketStatus() {
   })
 }
 
+export function useUpdateTicket() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Partial<Ticket> }) => ticketService.updateTicket(id, data),
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: ticketKeys.detail(id) })
+      queryClient.invalidateQueries({ queryKey: ticketKeys.lists() })
+    },
+  })
+}
+
+export function useCaseAssignees(enabled = true) {
+  return useQuery({ queryKey: [...ticketKeys.all, 'assignees'], queryFn: ticketService.getAssignees, enabled })
+}
+
 export function useAddComment() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ ticketId, content, isInternal, authorName }: { ticketId: string; content: string; isInternal: boolean; authorName?: string }) =>
-      ticketService.addComment(ticketId, content, isInternal, authorName),
+    mutationFn: ({ ticketId, content, isInternal }: { ticketId: string; content: string; isInternal: boolean; authorName?: string }) =>
+      ticketService.addComment(ticketId, content, isInternal),
     onSuccess: (_, { ticketId }) => {
       queryClient.invalidateQueries({ queryKey: ticketKeys.detail(ticketId) })
     },
@@ -65,6 +80,33 @@ export function useDeleteTicket() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ticketKeys.lists() })
     },
+  })
+}
+
+export function useEscalateTicket() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, reason }: { id: string; reason: string }) => ticketService.escalate(id, reason),
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: ticketKeys.detail(id) })
+      queryClient.invalidateQueries({ queryKey: ticketKeys.lists() })
+    },
+  })
+}
+
+export function useUploadCaseAttachment() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, file }: { id: string; file: File }) => ticketService.uploadAttachment(id, file),
+    onSuccess: (_, { id }) => queryClient.invalidateQueries({ queryKey: ticketKeys.detail(id) }),
+  })
+}
+
+export function useDeleteCaseAttachment() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, attachmentId }: { id: string; attachmentId: string }) => ticketService.deleteAttachment(id, attachmentId),
+    onSuccess: (_, { id }) => queryClient.invalidateQueries({ queryKey: ticketKeys.detail(id) }),
   })
 }
 

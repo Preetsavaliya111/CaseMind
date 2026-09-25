@@ -6,7 +6,8 @@ import { useAuth } from '@/app/providers'
 import { hasPermission, type Permission } from '@/permissions'
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, isLoading } = useAuth()
+  if (isLoading) return <PageLoader />
   if (!isAuthenticated) return <Navigate to="/login" replace />
   return <>{children}</>
 }
@@ -33,6 +34,16 @@ const NotFoundPage      = lazy(() => import('@/pages/NotFoundPage').then((m) => 
 const ForbiddenPage     = lazy(() => import('@/pages/ForbiddenPage').then((m) => ({ default: m.ForbiddenPage })))
 const AdminModelsPage   = lazy(() => import('@/pages/AdminModelsPage').then((m) => ({ default: m.AdminModelsPage })))
 const AdminUsersPage    = lazy(() => import('@/pages/AdminUsersPage').then((m) => ({ default: m.AdminUsersPage })))
+const LandingPage       = lazy(() => import('@/pages/LandingPage').then((m) => ({ default: m.LandingPage })))
+const RegisterPage      = lazy(() => import('@/pages/RegisterPage').then((m) => ({ default: m.RegisterPage })))
+const ForgotPasswordPage = lazy(() => import('@/pages/ForgotPasswordPage').then((m) => ({ default: m.ForgotPasswordPage })))
+const ResetPasswordPage = lazy(() => import('@/pages/ResetPasswordPage').then((m) => ({ default: m.ResetPasswordPage })))
+const DocumentsPage     = lazy(() => import('@/pages/DocumentsPage').then((m) => ({ default: m.DocumentsPage })))
+const AcceptInvitationPage = lazy(() => import('@/pages/AcceptInvitationPage').then((m) => ({ default: m.AcceptInvitationPage })))
+const TeamsPage = lazy(() => import('@/pages/TeamsPage').then((m) => ({ default: m.TeamsPage })))
+const AuditLogPage = lazy(() => import('@/pages/AuditLogPage').then((m) => ({ default: m.AuditLogPage })))
+const SLAPage = lazy(() => import('@/pages/SLAPage').then((m) => ({ default: m.SLAPage })))
+const NotificationsPage = lazy(() => import('@/pages/NotificationsPage').then((m) => ({ default: m.NotificationsPage })))
 
 function PageLoader() {
   return (
@@ -56,8 +67,28 @@ function withSuspense(Component: React.ComponentType) {
 
 export const router = createBrowserRouter([
   {
+    path: '/',
+    element: withSuspense(LandingPage),
+  },
+  {
     path: '/login',
     element: withSuspense(LoginPage),
+  },
+  {
+    path: '/register',
+    element: withSuspense(RegisterPage),
+  },
+  {
+    path: '/forgot-password',
+    element: withSuspense(ForgotPasswordPage),
+  },
+  {
+    path: '/reset-password',
+    element: withSuspense(ResetPasswordPage),
+  },
+  {
+    path: '/invite/:token',
+    element: withSuspense(AcceptInvitationPage),
   },
   {
     path: '/403',
@@ -67,17 +98,19 @@ export const router = createBrowserRouter([
     ],
   },
   {
-    path: '/',
     element: <RequireAuth><AppLayout /></RequireAuth>,
     children: [
-      { index: true, element: <Navigate to="/dashboard" replace /> },
       { path: 'dashboard',    element: withSuspense(DashboardPage) },
       { path: 'tickets',      element: withSuspense(TicketsPage) },
       { path: 'tickets/new',  element: <RequirePermission permission="tickets.create">{withSuspense(CreateTicketPage)}</RequirePermission> },
       { path: 'tickets/:id',  element: withSuspense(TicketDetailPage) },
       { path: 'memory',       element: <RequirePermission permission="memory.view">{withSuspense(MemoryPage)}</RequirePermission> },
       { path: 'knowledge',    element: withSuspense(KnowledgePage) },
+      { path: 'documents',    element: <RequirePermission permission="documents.view">{withSuspense(DocumentsPage)}</RequirePermission> },
       { path: 'analytics',    element: <RequirePermission permission="analytics.view">{withSuspense(AnalyticsPage)}</RequirePermission> },
+      { path: 'teams',        element: <RequirePermission permission="teams.view">{withSuspense(TeamsPage)}</RequirePermission> },
+      { path: 'sla',          element: <RequirePermission permission="sla.view">{withSuspense(SLAPage)}</RequirePermission> },
+      { path: 'notifications', element: withSuspense(NotificationsPage) },
       { path: 'chat',         element: <RequirePermission permission="chat.use">{withSuspense(ChatPage)}</RequirePermission> },
       { path: 'settings',     element: withSuspense(SettingsPage) },
       {
@@ -87,6 +120,10 @@ export const router = createBrowserRouter([
       {
         path: 'admin/users',
         element: <RequirePermission permission="admin.users">{withSuspense(AdminUsersPage)}</RequirePermission>,
+      },
+      {
+        path: 'admin/audit',
+        element: <RequirePermission permission="admin.audit">{withSuspense(AuditLogPage)}</RequirePermission>,
       },
     ],
   },

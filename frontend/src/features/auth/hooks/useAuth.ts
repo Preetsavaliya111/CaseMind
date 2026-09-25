@@ -11,6 +11,7 @@ export function useLogin() {
   return useMutation({
     mutationFn: (credentials: LoginRequest) => authService.login(credentials),
     onSuccess: (data) => {
+      if ('mfaRequired' in data) return
       login({ accessToken: data.accessToken, refreshToken: data.refreshToken, expiresIn: data.expiresIn }, data.user)
       navigate('/dashboard')
     },

@@ -45,7 +45,7 @@ export function TicketCommentThread({ comments, onAddComment }: TicketCommentThr
             <div className="flex items-center gap-2 mb-1">
               <span className="text-sm font-medium">{comment.authorName}</span>
               {comment.isInternal && (
-                <span className="inline-flex items-center gap-1 text-2xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 px-1.5 py-0.5 rounded">
+                <span className="inline-flex items-center gap-1 rounded bg-info/10 px-1.5 py-0.5 text-2xs text-info">
                   <Lock className="h-2.5 w-2.5" />
                   Internal
                 </span>
@@ -55,7 +55,7 @@ export function TicketCommentThread({ comments, onAddComment }: TicketCommentThr
             <div className={cn(
               'rounded-lg px-3 py-2 text-sm',
               comment.isInternal
-                ? 'bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800'
+                ? 'border border-info/20 bg-info/[0.06]'
                 : 'bg-muted',
             )}>
               {comment.content}
