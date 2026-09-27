@@ -72,6 +72,21 @@ class UserResponse(BaseModel):
     teams: list[TeamSummary] = Field(default_factory=list)
     departments: list[DepartmentSummary] = Field(default_factory=list)
     default_workspace: str
+    onboarding_completed: bool
+    onboarding_step: int
+    onboarding_data: dict = Field(default_factory=dict)
+    tours_viewed: list[str] = Field(default_factory=list)
+    setup_checklist_dismissed: bool
+
+
+class OnboardingUpdateRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    step: int | None = Field(default=None, ge=0, le=7)
+    completed: bool | None = None
+    data: dict | None = None
+    tour_viewed: str | None = Field(default=None, min_length=1, max_length=50)
+    checklist_dismissed: bool | None = None
 
 
 class TokenResponse(BaseModel):

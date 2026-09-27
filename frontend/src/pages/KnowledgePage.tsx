@@ -67,11 +67,11 @@ export function KnowledgePage() {
   return (
     <div className="mx-auto max-w-7xl space-y-6 p-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-        <div><p className="text-2xs font-semibold uppercase tracking-[0.2em] text-primary">Curated knowledge</p><h1 className="mt-1 text-2xl font-bold tracking-tight">Knowledge Library</h1><p className="mt-1 text-sm text-muted-foreground">Publish reviewed runbooks, known issues, and internal procedures for people and grounded AI answers.</p></div>
+        <div data-tour="knowledge-intro"><p className="text-2xs font-semibold uppercase tracking-[0.2em] text-primary">Trusted team guidance</p><h1 className="mt-1 text-2xl font-bold tracking-tight">Knowledge</h1><p className="mt-1 text-sm text-muted-foreground">Keep reviewed guides, known issues, and internal procedures where both people and CaseMind can use them.</p></div>
         {canEdit && <Button onClick={() => setCreateOpen(true)}><FilePlus2 className="h-4 w-4" />New article</Button>}
       </div>
 
-      <div className="relative max-w-2xl"><Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" /><Input className="pl-9" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search titles, guidance, or procedures…" aria-label="Search knowledge" /></div>
+      <div data-tour="knowledge-search" className="relative max-w-2xl"><Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" /><Input className="pl-9" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search guides, known issues, or solutions…" aria-label="Search knowledge" /></div>
 
       {error && <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-xs text-destructive">{error}</div>}
       {loadFailed && <div className="rounded-xl border p-8 text-center"><p className="text-sm font-medium">Knowledge could not be loaded.</p><Button className="mt-3" size="sm" variant="outline" onClick={() => searching ? searchQuery.refetch() : articlesQuery.refetch()}>Try again</Button></div>}

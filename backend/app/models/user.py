@@ -41,6 +41,11 @@ class User(Base):
     mfa_last_used_step = Column(Integer)
     token_version = Column(Integer, nullable=False, default=0)
     notification_preferences = Column(JSON, nullable=False, default=dict)
+    onboarding_completed = Column(Boolean, nullable=False, default=False)
+    onboarding_step = Column(Integer, nullable=False, default=0)
+    onboarding_data = Column(JSON, nullable=False, default=dict)
+    tours_viewed = Column(JSON, nullable=False, default=list)
+    setup_checklist_dismissed = Column(Boolean, nullable=False, default=False)
 
     created_at = Column(
         DateTime(timezone=True),

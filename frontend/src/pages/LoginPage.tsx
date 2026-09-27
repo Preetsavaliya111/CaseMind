@@ -45,7 +45,7 @@ export function LoginPage() {
         return
       }
       login({ accessToken: result.accessToken, expiresIn: result.expiresIn }, result.user)
-      navigate('/dashboard')
+      navigate(result.user.onboardingCompleted ? '/dashboard' : '/onboarding')
     } catch (error) {
       const message = typeof error === 'object' && error && 'message' in error
         ? String(error.message)
@@ -60,7 +60,7 @@ export function LoginPage() {
     try {
       const result = await authService.verifyMFA(mfaChallenge, mfaCode)
       login({ accessToken: result.accessToken, expiresIn: result.expiresIn }, result.user)
-      navigate('/dashboard')
+      navigate(result.user.onboardingCompleted ? '/dashboard' : '/onboarding')
     } catch (error) {
       setAuthError(typeof error === 'object' && error && 'message' in error ? String(error.message) : 'Unable to verify this code.')
     } finally { setIsVerifying(false) }
@@ -90,10 +90,10 @@ export function LoginPage() {
 
           <div className="space-y-3">
             {[
-              'Intelligent case classification & prioritization',
-              'RAG-powered knowledge base search',
-              'Real-time SLA monitoring & alerts',
-              'ML-driven resolution recommendations',
+              'Find similar cases and proven solutions',
+              'Get suggestions that show their sources',
+              'Monitor response deadlines and escalations',
+              'Turn successful resolutions into reusable knowledge',
             ].map((feature) => (
               <div key={feature} className="flex items-center gap-3">
                 <div className="h-1.5 w-1.5 rounded-full bg-primary shrink-0" aria-hidden="true" />

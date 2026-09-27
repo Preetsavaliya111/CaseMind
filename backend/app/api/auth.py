@@ -20,6 +20,7 @@ from app.schemas.auth import (
     PasswordResetConfirm,
     PasswordResetRequest,
     MessageResponse,
+    OnboardingUpdateRequest,
     ProfileUpdateRequest,
     RegisterRequest,
     TokenResponse,
@@ -118,6 +119,44 @@ def get_me(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    return build_user_response(db, current_user)
+
+
+@router.patch("/onboarding", response_model=UserResponse)
+def onboarding_update(
+    data: OnboardingUpdateRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if data.step is not None:
+        current_user.onboarding_step = data.step
+    if data.completed is not None:
+        current_user.onboarding_completed = data.completed
+    if data.data is not None:
+        current_user.onboarding_data = {**(current_user.onboarding_data or {}), **data.data}
+    if data.tour_viewed:
+        viewed = list(current_user.tours_viewed or [])
+        if data.tour_viewed not in viewed:
+            viewed.append(data.tour_viewed)
+        current_user.tours_viewed = viewed
+    if data.checklist_dismissed is not None:
+        current_user.setup_checklist_dismissed = data.checklist_dismissed
+    db.commit()
+    db.refresh(current_user)
+    return build_user_response(db, current_user)
+
+
+@router.post("/onboarding/restart", response_model=UserResponse)
+def onboarding_restart(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    current_user.onboarding_completed = False
+    current_user.onboarding_step = 0
+    current_user.tours_viewed = []
+    current_user.setup_checklist_dismissed = False
+    db.commit()
+    db.refresh(current_user)
     return build_user_response(db, current_user)
 
 

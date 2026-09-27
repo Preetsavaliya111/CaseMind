@@ -118,6 +118,43 @@ def test_registration_does_not_accept_caller_selected_role_or_tenant(client: Tes
     assert response.status_code == 422
 
 
+def test_onboarding_progress_is_persisted_and_can_be_restarted(client: TestClient):
+    token = register_and_login(client, "onboarding-admin@example.com", "Onboarding Workspace")
+    headers = {"Authorization": f"Bearer {token}"}
+
+    initial = client.get("/api/v1/auth/me", headers=headers)
+    assert initial.status_code == 200
+    assert initial.json()["onboarding_completed"] is False
+    assert initial.json()["onboarding_step"] == 0
+
+    updated = client.patch(
+        "/api/v1/auth/onboarding",
+        headers=headers,
+        json={
+            "step": 4,
+            "completed": True,
+            "data": {"primaryGoal": "Reuse previous solutions"},
+            "tour_viewed": "main",
+            "checklist_dismissed": True,
+        },
+    )
+    assert updated.status_code == 200, updated.text
+    payload = updated.json()
+    assert payload["onboarding_completed"] is True
+    assert payload["onboarding_step"] == 4
+    assert payload["onboarding_data"]["primaryGoal"] == "Reuse previous solutions"
+    assert payload["tours_viewed"] == ["main"]
+    assert payload["setup_checklist_dismissed"] is True
+
+    restarted = client.post("/api/v1/auth/onboarding/restart", headers=headers)
+    assert restarted.status_code == 200, restarted.text
+    payload = restarted.json()
+    assert payload["onboarding_completed"] is False
+    assert payload["onboarding_step"] == 0
+    assert payload["tours_viewed"] == []
+    assert payload["setup_checklist_dismissed"] is False
+
+
 def test_optional_mfa_requires_challenge_and_prevents_totp_replay(client: TestClient):
     token = register_and_login(client, "mfa-admin@example.com", "MFA Workspace")
     headers = {"Authorization": f"Bearer {token}"}

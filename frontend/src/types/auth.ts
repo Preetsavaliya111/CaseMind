@@ -29,6 +29,11 @@ export interface User {
   mfaEnabled: boolean
   createdAt: string
   lastLoginAt?: string
+  onboardingCompleted: boolean
+  onboardingStep: number
+  onboardingData: Record<string, unknown>
+  toursViewed: string[]
+  setupChecklistDismissed: boolean
 }
 
 export interface AuthTokens {

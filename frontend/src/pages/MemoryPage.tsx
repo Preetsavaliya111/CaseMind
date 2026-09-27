@@ -113,14 +113,14 @@ export function MemoryPage() {
   return (
     <div className="mx-auto max-w-7xl space-y-6 p-4 sm:p-6">
       <div className="relative overflow-hidden rounded-xl border border-primary/20 bg-primary/[0.04] p-6">
-        <div className="relative flex flex-col justify-between gap-5 md:flex-row md:items-center"><div><div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary"><Database className="h-3.5 w-3.5" />Organizational Memory</div><h1 className="mt-4 text-2xl font-bold tracking-tight">Reusable knowledge with traceable evidence</h1><p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">Capture issue patterns, causes, resolutions, and workarounds from real Cases and Documents. Drafts remain clearly separated from human-verified memory.</p></div>{canCreate && <Button onClick={() => setCreateOpen(true)}><Plus className="h-4 w-4" />Create memory</Button>}</div>
+        <div data-tour="memory-intro" className="relative flex flex-col justify-between gap-5 md:flex-row md:items-center"><div><div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary"><Database className="h-3.5 w-3.5" />Organizational Memory</div><h1 className="mt-4 text-2xl font-bold tracking-tight">Lessons your team can reuse</h1><p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">CaseMind saves useful lessons from previous work so your team does not have to solve the same problem from scratch. Drafts stay separate until someone reviews them.</p></div>{canCreate && <Button onClick={() => setCreateOpen(true)}><Plus className="h-4 w-4" />Add a lesson</Button>}</div>
       </div>
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         {statCards.map(({ label, value, icon: Icon }) => <Card key={label}><CardContent className="flex items-center justify-between p-4"><div><p className="text-xs text-muted-foreground">{label}</p><p className="mt-1 text-2xl font-semibold">{value}</p></div><Icon className="h-5 w-5 text-primary" /></CardContent></Card>)}
       </div>
 
-      <div className="relative max-w-md"><Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" /><Input className="pl-9" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search issue patterns, causes, or resolutions" /></div>
+      <div data-tour="memory-filters" className="relative max-w-md"><Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" /><Input className="pl-9" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search known solutions, causes, or workarounds" /></div>
 
       {isLoading && <div className="grid gap-4 md:grid-cols-2">{Array.from({ length: 4 }).map((_, index) => <Skeleton key={index} className="h-60 rounded-lg" />)}</div>}
       {isError && <Card><CardContent className="py-12 text-center"><p className="text-sm font-medium">Organizational Memory could not be loaded.</p><Button className="mt-4" size="sm" variant="outline" onClick={() => refetch()}>Try again</Button></CardContent></Card>}

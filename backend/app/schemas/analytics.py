@@ -29,5 +29,7 @@ class AnalyticsOverview(BaseModel):
     indexed_documents: int
     documents_pending: int
     documents_failed: int
+    ai_questions_asked: int
+    teammates_invited: int
     trends: list[TrendPoint]
     attention_cases: list[AttentionCase]

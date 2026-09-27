@@ -1,4 +1,4 @@
-import { AlertTriangle, ArrowRight, BookOpen, Brain, CheckCircle2, Clock, Database, FileText, Ticket, Users, Flame, Activity, ShieldCheck } from 'lucide-react'
+import { AlertTriangle, ArrowRight, BookOpen, Brain, CheckCircle2, Clock, Database, FileText, Ticket, Users, Flame, Activity, ShieldCheck, MessageSquare, Search, Upload } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle, SkeletonCard, Button, Badge } from '@/components/ui'
 import { EmptyState, PriorityBadge } from '@/components/common'
@@ -8,6 +8,7 @@ import { useDashboardOverview, useWorkspaceDashboard } from '@/features/dashboar
 import { formatDateTime } from '@/utils'
 import { useAuth } from '@/app/providers'
 import { hasPermission } from '@/permissions'
+import { GettingStartedChecklist } from '@/features/onboarding/GettingStartedChecklist'
 
 export function DashboardPage() {
   const navigate = useNavigate()
@@ -17,13 +18,21 @@ export function DashboardPage() {
   const isCustomer = Boolean(user?.roles.includes('customer'))
   const canViewMemory = hasPermission(user, 'memory.view')
   const canViewDocuments = hasPermission(user, 'documents.view')
+  const canCreateCases = hasPermission(user, 'tickets.create')
 
   if (isLoading || workspaceLoading) return <div className="mx-auto grid max-w-7xl gap-4 p-6 sm:grid-cols-2 lg:grid-cols-4">{Array.from({ length: 8 }).map((_, index) => <SkeletonCard key={index} />)}</div>
   if (isError || !data) return <div className="p-6"><EmptyState icon={AlertTriangle} title="Command Center unavailable" description="Operational data could not be loaded." action={{ label: 'Try again', onClick: () => refetch() }} /></div>
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 p-6">
-      <div><p className="text-2xs font-semibold uppercase tracking-[0.2em] text-primary">{workspace?.role.replace(/_/g, ' ') ?? (isCustomer ? 'Your support workspace' : 'Live organization data')}</p><h1 className="mt-1 text-2xl font-bold tracking-tight">{workspace?.title ?? (isCustomer ? 'Support Home' : 'Command Center')}</h1><p className="mt-1 text-sm text-muted-foreground">{workspace?.description ?? 'Operational workload and the health of your reusable knowledge.'}</p></div>
+      <div><p className="text-2xs font-semibold uppercase tracking-[0.2em] text-primary">{workspace?.role.replace(/_/g, ' ') ?? (isCustomer ? 'Your support workspace' : 'Live organization data')}</p><h1 className="mt-1 text-2xl font-bold tracking-tight">Good {new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 18 ? 'afternoon' : 'evening'}, {user?.name.split(' ')[0]}</h1><p className="mt-1 text-sm text-muted-foreground">Here’s what needs your attention today.</p></div>
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {canCreateCases && <QuickAction icon={Ticket} label="Create case" description="Record a customer issue" onClick={() => navigate('/tickets/new')} primary />}
+        {hasPermission(user, 'chat.use') && <QuickAction icon={MessageSquare} label="Ask CaseMind" description="Get an answer with sources" onClick={() => navigate('/chat')} />}
+        <QuickAction icon={Search} label="Search knowledge" description="Find proven guidance" onClick={() => navigate('/knowledge')} />
+        {canViewDocuments && <QuickAction icon={Upload} label="Upload document" description="Add a trusted source" onClick={() => navigate('/documents')} />}
+      </div>
+      <GettingStartedChecklist data={data} />
       {workspace && <><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{workspace.metrics.map((metric, index) => { const icons = [Activity, Users, Flame, ShieldCheck]; const Icon = icons[index % icons.length]; return <button key={metric.key} className="text-left" onClick={() => metric.locator && navigate(metric.locator)} disabled={!metric.locator}><StatCard title={metric.label} value={metric.value} icon={Icon} iconClassName={metric.tone === 'critical' ? 'bg-destructive/15' : metric.tone === 'warning' ? 'bg-warning/15' : metric.tone === 'success' ? 'bg-success/15' : undefined} description={metric.locator ? 'Open workspace' : undefined} /></button> })}</div><Card><CardHeader><CardTitle className="text-sm">Role priorities</CardTitle></CardHeader><CardContent><div className="grid gap-3 md:grid-cols-3">{workspace.priorities.map((priority, index) => <div key={priority} className="flex gap-3 rounded-lg border bg-muted/20 p-3"><span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-2xs font-bold text-primary-foreground">{index + 1}</span><p className="text-xs leading-relaxed text-muted-foreground">{priority}</p></div>)}</div></CardContent></Card></>}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard title="Open cases" value={data.open_cases} icon={Ticket} description={`${data.total_cases} total cases`} />
@@ -37,9 +46,9 @@ export function DashboardPage() {
         <Card><CardHeader><CardTitle className="flex items-center gap-2"><Brain className="h-4 w-4 text-primary" />{isCustomer ? 'Self-service knowledge' : 'Knowledge readiness'}</CardTitle></CardHeader><CardContent className="space-y-3">
           {canViewMemory && <ReadinessRow icon={Database} label="Verified memory" value={data.verified_memory} action={() => navigate('/memory')} />}
           <ReadinessRow icon={BookOpen} label="Published articles" value={data.published_knowledge} action={() => navigate('/knowledge')} />
-          {canViewDocuments && <ReadinessRow icon={FileText} label="Indexed documents" value={data.indexed_documents} action={() => navigate('/documents')} />}
-          {!isCustomer && (data.draft_memory > 0 || data.documents_pending > 0 || data.documents_failed > 0) && <div className="rounded-lg border bg-muted/30 p-3 text-xs text-muted-foreground"><p>{data.draft_memory} memory item(s) awaiting verification</p><p>{data.documents_pending} document(s) awaiting indexing</p>{data.documents_failed > 0 && <p className="text-destructive">{data.documents_failed} document processing failure(s)</p>}</div>}
-          <Button className="w-full" size="sm" onClick={() => navigate('/chat')}>{isCustomer ? 'Ask CaseMind' : 'Open Evidence Workspace'}<ArrowRight className="h-3.5 w-3.5" /></Button>
+          {canViewDocuments && <ReadinessRow icon={FileText} label="Documents ready for AI search" value={data.indexed_documents} action={() => navigate('/documents')} />}
+          {!isCustomer && (data.draft_memory > 0 || data.documents_pending > 0 || data.documents_failed > 0) && <div className="rounded-lg border bg-muted/30 p-3 text-xs text-muted-foreground"><p>{data.draft_memory} memory item(s) awaiting review</p><p>{data.documents_pending} document(s) being prepared</p>{data.documents_failed > 0 && <p className="text-destructive">{data.documents_failed} document(s) need attention</p>}</div>}
+          <Button className="w-full" size="sm" onClick={() => navigate('/chat')}>Ask CaseMind<ArrowRight className="h-3.5 w-3.5" /></Button>
         </CardContent></Card>
       </div>
 
@@ -48,6 +57,10 @@ export function DashboardPage() {
       </CardContent></Card>
     </div>
   )
+}
+
+function QuickAction({ icon: Icon, label, description, onClick, primary = false }: { icon: typeof Ticket; label: string; description: string; onClick: () => void; primary?: boolean }) {
+  return <button onClick={onClick} className={`flex items-center gap-3 rounded-xl border p-4 text-left transition-colors ${primary ? 'border-primary bg-primary text-primary-foreground hover:opacity-90' : 'bg-card hover:border-primary/40'}`}><span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${primary ? 'bg-primary-foreground/10' : 'bg-primary/10 text-primary'}`}><Icon className="h-4 w-4" /></span><span><span className="block text-sm font-medium">{label}</span><span className={`mt-0.5 block text-xs ${primary ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>{description}</span></span></button>
 }
 
 function ReadinessRow({ icon: Icon, label, value, action }: { icon: typeof Database; label: string; value: number; action: () => void }) {

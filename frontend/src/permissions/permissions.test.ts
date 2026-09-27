@@ -20,6 +20,11 @@ function user(overrides: Partial<User> = {}): User {
     isActive: true,
     mfaEnabled: false,
     createdAt: '2026-09-24T00:00:00Z',
+    onboardingCompleted: true,
+    onboardingStep: 7,
+    onboardingData: {},
+    toursViewed: [],
+    setupChecklistDismissed: false,
     ...overrides,
   }
 }

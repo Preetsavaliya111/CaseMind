@@ -5,6 +5,7 @@ import {
   Network,
   ScrollText,
   Timer,
+  HelpCircle,
 } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
 import { cn } from '@/utils'
@@ -17,19 +18,21 @@ interface NavItem {
   icon: React.ElementType
   label: string
   permission?: Permission
+  tour?: string
 }
 
 const mainNav: NavItem[] = [
-  { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { to: '/tickets', icon: Ticket, label: 'Cases', permission: 'tickets.view' },
-  { to: '/memory', icon: Database, label: 'Memory', permission: 'memory.view' },
-  { to: '/knowledge', icon: BookOpen, label: 'Knowledge', permission: 'knowledge.view' },
-  { to: '/documents', icon: Files, label: 'Documents', permission: 'documents.view' },
+  { to: '/dashboard', icon: LayoutDashboard, label: 'Home', tour: 'home' },
+  { to: '/tickets', icon: Ticket, label: 'Cases', permission: 'tickets.view', tour: 'cases' },
+  { to: '/chat', icon: MessageSquare, label: 'Ask CaseMind', permission: 'chat.use', tour: 'assistant' },
+  { to: '/memory', icon: Database, label: 'Organizational Memory', permission: 'memory.view', tour: 'memory' },
+  { to: '/knowledge', icon: BookOpen, label: 'Knowledge', permission: 'knowledge.view', tour: 'knowledge' },
+  { to: '/documents', icon: Files, label: 'Documents', permission: 'documents.view', tour: 'documents' },
   { to: '/analytics', icon: BarChart3, label: 'Analytics', permission: 'analytics.view' },
   { to: '/teams', icon: Network, label: 'Teams', permission: 'teams.view' },
   { to: '/sla', icon: Timer, label: 'SLA & Escalations', permission: 'sla.view' },
-  { to: '/chat', icon: MessageSquare, label: 'Evidence AI', permission: 'chat.use' },
   { to: '/settings', icon: Settings, label: 'Settings' },
+  { to: '/help', icon: HelpCircle, label: 'Help & Learning' },
 ]
 
 const adminNav: NavItem[] = [
@@ -99,7 +102,7 @@ export function Sidebar() {
 
       {/* Nav */}
       <nav className="flex-1 overflow-y-auto py-4 px-2 space-y-1 scrollbar-none">
-        {mainNav.map(({ to, icon: Icon, label, permission }) => {
+        {mainNav.map(({ to, icon: Icon, label, permission, tour }) => {
           if (permission && !hasPermission(user, permission)) return null
           const isActive = location.pathname.startsWith(to)
           return (
@@ -115,6 +118,7 @@ export function Sidebar() {
               )}
               aria-label={collapsed ? label : undefined}
               title={collapsed ? label : undefined}
+              data-tour={tour}
             >
               <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
               {!collapsed && <span>{label}</span>}

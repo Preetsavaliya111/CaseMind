@@ -12,10 +12,10 @@ import { formatRelative } from '@/utils'
 
 const statusPresentation: Record<DocumentStatus, { label: string; variant: 'secondary' | 'warning' | 'success' | 'destructive' | 'info'; icon: typeof Clock3 }> = {
   uploaded: { label: 'Uploaded', variant: 'secondary', icon: Clock3 },
-  processing: { label: 'Processing', variant: 'info', icon: RefreshCw },
-  ready_for_indexing: { label: 'Ready for indexing', variant: 'warning', icon: AlertCircle },
-  indexed: { label: 'Indexed', variant: 'success', icon: CheckCircle2 },
-  failed: { label: 'Failed', variant: 'destructive', icon: XCircle },
+  processing: { label: 'Preparing', variant: 'info', icon: RefreshCw },
+  ready_for_indexing: { label: 'Waiting for AI search setup', variant: 'warning', icon: AlertCircle },
+  indexed: { label: 'Ready for AI search', variant: 'success', icon: CheckCircle2 },
+  failed: { label: 'Needs attention', variant: 'destructive', icon: XCircle },
 }
 
 function formatBytes(value: number): string {
@@ -28,6 +28,14 @@ function DocumentStatusBadge({ status }: { status: DocumentStatus }) {
   const presentation = statusPresentation[status]
   const Icon = presentation.icon
   return <Badge variant={presentation.variant} className="gap-1.5 whitespace-nowrap"><Icon className={`h-3 w-3 ${status === 'processing' ? 'animate-spin' : ''}`} />{presentation.label}</Badge>
+}
+
+function documentPreparationMessage(document: SourceDocument): string | null {
+  if (!document.errorMessage) return null
+  if (document.errorCode === 'indexing_unavailable') {
+    return 'The knowledge-search service is temporarily unavailable. Restore the service, then select Try again.'
+  }
+  return 'We couldn’t read this document. Confirm that the file opens correctly, then select Try again.'
 }
 
 export function DocumentsPage() {
@@ -76,7 +84,7 @@ export function DocumentsPage() {
   }
 
   const handleDelete = async (document: SourceDocument) => {
-    if (!window.confirm(`Remove ${document.originalFilename}? Its stored source and vector entries will be deleted.`)) return
+    if (!window.confirm(`Remove ${document.originalFilename}? It will no longer be available to your team or CaseMind.`)) return
     setActionError('')
     try { await remove.mutateAsync(document.id) } catch (error) {
       setActionError(typeof error === 'object' && error && 'message' in error ? String(error.message) : 'Unable to remove the document.')
@@ -86,18 +94,18 @@ export function DocumentsPage() {
   return (
     <div className="mx-auto max-w-7xl space-y-6 p-4 sm:p-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
-        <div><p className="text-xs font-medium uppercase tracking-[0.16em] text-primary">Knowledge sources</p><h1 className="mt-1 text-2xl font-bold tracking-tight">Documents</h1><p className="mt-1 max-w-2xl text-sm text-muted-foreground">Upload trusted source material, inspect its processing state, and know exactly what is available to retrieval.</p></div>
+        <div><p className="text-xs font-medium uppercase tracking-[0.16em] text-primary">Knowledge sources</p><h1 className="mt-1 text-2xl font-bold tracking-tight">Documents</h1><p className="mt-1 max-w-2xl text-sm text-muted-foreground">Upload trusted guides, runbooks, and reference material so CaseMind can use them when helping your team.</p></div>
         {canManage && <Button onClick={() => setUploadOpen(true)}><Upload className="h-4 w-4" />Upload document</Button>}
       </div>
 
       <div className="grid gap-3 sm:grid-cols-3">
-        <Card><CardContent className="flex items-center justify-between p-4"><div><p className="text-xs text-muted-foreground">Indexed sources</p><p className="mt-1 text-2xl font-semibold">{counts.indexed}</p></div><CheckCircle2 className="h-5 w-5 text-success" /></CardContent></Card>
-        <Card><CardContent className="flex items-center justify-between p-4"><div><p className="text-xs text-muted-foreground">In pipeline</p><p className="mt-1 text-2xl font-semibold">{counts.pending}</p></div><Clock3 className="h-5 w-5 text-warning" /></CardContent></Card>
+        <Card><CardContent className="flex items-center justify-between p-4"><div><p className="text-xs text-muted-foreground">Ready for AI search</p><p className="mt-1 text-2xl font-semibold">{counts.indexed}</p></div><CheckCircle2 className="h-5 w-5 text-success" /></CardContent></Card>
+        <Card><CardContent className="flex items-center justify-between p-4"><div><p className="text-xs text-muted-foreground">Being prepared</p><p className="mt-1 text-2xl font-semibold">{counts.pending}</p></div><Clock3 className="h-5 w-5 text-warning" /></CardContent></Card>
         <Card><CardContent className="flex items-center justify-between p-4"><div><p className="text-xs text-muted-foreground">Needs attention</p><p className="mt-1 text-2xl font-semibold">{counts.failed}</p></div><AlertCircle className="h-5 w-5 text-destructive" /></CardContent></Card>
       </div>
 
       {(data?.data ?? []).some((document) => document.status === 'ready_for_indexing') && (
-        <div className="flex items-start gap-3 rounded-lg border border-warning/25 bg-warning/5 p-4 text-sm"><AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-warning" /><div><p className="font-medium">Some documents are extracted but not indexed</p><p className="mt-1 text-xs leading-5 text-muted-foreground">Their text and chunks are ready. They will become searchable after an embedding provider is configured and reprocessing succeeds.</p></div></div>
+        <div className="flex items-start gap-3 rounded-lg border border-warning/25 bg-warning/5 p-4 text-sm"><AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-warning" /><div><p className="font-medium">Some documents are waiting for AI search setup</p><p className="mt-1 text-xs leading-5 text-muted-foreground">Your files are safe, but CaseMind cannot search them yet. Ask an administrator to finish the AI search connection, then try preparing them again.</p></div></div>
       )}
       {actionError && <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive" role="alert">{actionError}</div>}
 
@@ -106,11 +114,11 @@ export function DocumentsPage() {
         <CardContent className="p-0">
           {isLoading && <div className="space-y-2 p-4">{Array.from({ length: 4 }).map((_, index) => <Skeleton key={index} className="h-16" />)}</div>}
           {isError && <div className="p-10 text-center"><AlertCircle className="mx-auto h-7 w-7 text-destructive" /><p className="mt-3 text-sm font-medium">Documents could not be loaded</p><Button className="mt-4" size="sm" variant="outline" onClick={() => refetch()}>Try again</Button></div>}
-          {!isLoading && !isError && documents.length === 0 && <EmptyState icon={FileArchive} title={search ? 'No matching documents' : 'No documents yet'} description={search ? 'Try a different filename.' : 'Upload runbooks, guides, incident reports, or other trusted material to begin building retrievable knowledge.'} action={canManage && !search ? { label: 'Upload first document', onClick: () => setUploadOpen(true) } : undefined} />}
+          {!isLoading && !isError && documents.length === 0 && <EmptyState icon={FileArchive} title={search ? 'No matching documents' : 'No documents yet'} description={search ? 'Try a different filename.' : 'Upload trusted runbooks, guides, or incident reports so CaseMind can use them when suggesting solutions.'} action={canManage && !search ? { label: 'Upload first document', onClick: () => setUploadOpen(true) } : undefined} />}
           {documents.length > 0 && <div className="divide-y">{documents.map((document) => (
             <div key={document.id} className="grid gap-3 p-4 hover:bg-muted/20 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
-              <div className="flex min-w-0 items-start gap-3"><div className="mt-0.5 rounded-md border bg-muted/40 p-2"><FileText className="h-4 w-4 text-primary" /></div><div className="min-w-0"><div className="flex flex-wrap items-center gap-2"><p className="truncate text-sm font-medium">{document.originalFilename}</p><DocumentStatusBadge status={document.status} /></div><p className="mt-1 text-xs text-muted-foreground">{formatBytes(document.sizeBytes)} · {document.chunkCount} chunks · Uploaded by {document.uploadedByName} {formatRelative(document.createdAt)}</p>{document.errorMessage && <p className="mt-1 text-xs text-destructive">{document.errorMessage}</p>}</div></div>
-              {canManage && <div className="flex items-center gap-1 sm:justify-end"><Button size="sm" variant="ghost" disabled={reprocess.isPending || document.status === 'processing'} onClick={() => handleReprocess(document)}><RefreshCw className="h-3.5 w-3.5" />Reprocess</Button><Button size="icon" variant="ghost" className="text-destructive hover:bg-destructive/10" onClick={() => handleDelete(document)} aria-label={`Remove ${document.originalFilename}`}><Trash2 className="h-4 w-4" /></Button></div>}
+              <div className="flex min-w-0 items-start gap-3"><div className="mt-0.5 rounded-md border bg-muted/40 p-2"><FileText className="h-4 w-4 text-primary" /></div><div className="min-w-0"><div className="flex flex-wrap items-center gap-2"><p className="truncate text-sm font-medium">{document.originalFilename}</p><DocumentStatusBadge status={document.status} /></div><p className="mt-1 text-xs text-muted-foreground">{formatBytes(document.sizeBytes)} · Uploaded by {document.uploadedByName} {formatRelative(document.createdAt)}</p>{documentPreparationMessage(document) && <p className="mt-1 text-xs text-destructive" role="alert">{documentPreparationMessage(document)}</p>}</div></div>
+              {canManage && <div className="flex items-center gap-1 sm:justify-end">{['failed', 'ready_for_indexing'].includes(document.status) && <Button size="sm" variant="ghost" disabled={reprocess.isPending} onClick={() => handleReprocess(document)}><RefreshCw className="h-3.5 w-3.5" />Try again</Button>}<Button size="icon" variant="ghost" className="text-destructive hover:bg-destructive/10" onClick={() => handleDelete(document)} aria-label={`Remove ${document.originalFilename}`}><Trash2 className="h-4 w-4" /></Button></div>}
             </div>
           ))}</div>}
         </CardContent>
@@ -118,10 +126,10 @@ export function DocumentsPage() {
 
       <Dialog open={uploadOpen} onOpenChange={(open) => { setUploadOpen(open); if (!open) { setSelectedFile(null); setActionError(''); setProgress(0) } }}>
         <DialogContent><DialogHeader><DialogTitle>Upload a trusted source</DialogTitle><DialogDescription>PDF, TXT, Markdown, or DOCX up to 15 MB. Uploaded content is treated as untrusted evidence, never as system instructions.</DialogDescription></DialogHeader>
-          <button type="button" onClick={() => inputRef.current?.click()} className="rounded-lg border border-dashed p-8 text-center transition-colors hover:border-primary/50 hover:bg-primary/5"><input ref={inputRef} className="hidden" type="file" accept=".pdf,.txt,.md,.docx" onChange={(event) => setSelectedFile(event.target.files?.[0] ?? null)} /><File className="mx-auto h-7 w-7 text-muted-foreground" /><p className="mt-3 text-sm font-medium">{selectedFile?.name ?? 'Choose a document'}</p><p className="mt-1 text-xs text-muted-foreground">{selectedFile ? formatBytes(selectedFile.size) : 'The file is validated before it enters the processing pipeline.'}</p></button>
+          <button type="button" onClick={() => inputRef.current?.click()} className="rounded-lg border border-dashed p-8 text-center transition-colors hover:border-primary/50 hover:bg-primary/5"><input ref={inputRef} className="hidden" type="file" accept=".pdf,.txt,.md,.docx" onChange={(event) => setSelectedFile(event.target.files?.[0] ?? null)} /><File className="mx-auto h-7 w-7 text-muted-foreground" /><p className="mt-3 text-sm font-medium">{selectedFile?.name ?? 'Choose a document'}</p><p className="mt-1 text-xs text-muted-foreground">{selectedFile ? formatBytes(selectedFile.size) : 'We’ll validate the file and prepare it for AI search.'}</p></button>
           {upload.isPending && <div className="space-y-2"><div className="flex justify-between text-xs text-muted-foreground"><span>Uploading</span><span>{progress}%</span></div><Progress value={progress} /></div>}
           {actionError && <p className="text-xs text-destructive" role="alert">{actionError}</p>}
-          <div className="flex justify-end gap-2"><Button variant="outline" onClick={() => setUploadOpen(false)} disabled={upload.isPending}>Cancel</Button><Button onClick={submitUpload} disabled={!selectedFile} loading={upload.isPending}>Upload and process</Button></div>
+          <div className="flex justify-end gap-2"><Button variant="outline" onClick={() => setUploadOpen(false)} disabled={upload.isPending}>Cancel</Button><Button onClick={submitUpload} disabled={!selectedFile} loading={upload.isPending}>Upload and prepare</Button></div>
         </DialogContent>
       </Dialog>
     </div>

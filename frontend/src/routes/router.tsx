@@ -20,6 +20,12 @@ function RequirePermission({ permission, children }: { permission: Permission; c
   return <>{children}</>
 }
 
+function RequireOnboardingComplete({ children }: { children: React.ReactNode }) {
+  const { user } = useAuth()
+  if (user && !user.onboardingCompleted) return <Navigate to="/onboarding" replace />
+  return <>{children}</>
+}
+
 const DashboardPage     = lazy(() => import('@/pages/DashboardPage').then((m) => ({ default: m.DashboardPage })))
 const TicketsPage       = lazy(() => import('@/pages/TicketsPage').then((m) => ({ default: m.TicketsPage })))
 const TicketDetailPage  = lazy(() => import('@/pages/TicketDetailPage').then((m) => ({ default: m.TicketDetailPage })))
@@ -44,6 +50,8 @@ const TeamsPage = lazy(() => import('@/pages/TeamsPage').then((m) => ({ default:
 const AuditLogPage = lazy(() => import('@/pages/AuditLogPage').then((m) => ({ default: m.AuditLogPage })))
 const SLAPage = lazy(() => import('@/pages/SLAPage').then((m) => ({ default: m.SLAPage })))
 const NotificationsPage = lazy(() => import('@/pages/NotificationsPage').then((m) => ({ default: m.NotificationsPage })))
+const OnboardingPage = lazy(() => import('@/pages/OnboardingPage').then((m) => ({ default: m.OnboardingPage })))
+const HelpPage = lazy(() => import('@/pages/HelpPage').then((m) => ({ default: m.HelpPage })))
 
 function PageLoader() {
   return (
@@ -66,6 +74,10 @@ function withSuspense(Component: React.ComponentType) {
 }
 
 export const router = createBrowserRouter([
+  {
+    path: '/onboarding',
+    element: <RequireAuth>{withSuspense(OnboardingPage)}</RequireAuth>,
+  },
   {
     path: '/',
     element: withSuspense(LandingPage),
@@ -92,7 +104,7 @@ export const router = createBrowserRouter([
   },
   {
     path: '/403',
-    element: <RequireAuth><AppLayout /></RequireAuth>,
+    element: <RequireAuth><RequireOnboardingComplete><AppLayout /></RequireOnboardingComplete></RequireAuth>,
     children: [
       { index: true, element: withSuspense(ForbiddenPage) },
     ],
@@ -113,6 +125,7 @@ export const router = createBrowserRouter([
       { path: 'notifications', element: withSuspense(NotificationsPage) },
       { path: 'chat',         element: <RequirePermission permission="chat.use">{withSuspense(ChatPage)}</RequirePermission> },
       { path: 'settings',     element: withSuspense(SettingsPage) },
+      { path: 'help',         element: withSuspense(HelpPage) },
       {
         path: 'admin/models',
         element: <RequirePermission permission="admin.models">{withSuspense(AdminModelsPage)}</RequirePermission>,

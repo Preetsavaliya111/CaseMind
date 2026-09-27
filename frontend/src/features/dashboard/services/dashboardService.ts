@@ -12,6 +12,8 @@ export interface AnalyticsOverview {
   indexed_documents: number
   documents_pending: number
   documents_failed: number
+  ai_questions_asked: number
+  teammates_invited: number
   trends: { date: string; created: number; resolved: number; open: number }[]
   attention_cases: { id: string; case_number: string; subject: string; priority: string; status: string; updated_at: string }[]
 }

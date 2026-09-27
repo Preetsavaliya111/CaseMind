@@ -66,9 +66,9 @@ export function Topbar({ title }: TopbarProps) {
 
       <div className="flex items-center gap-2">
         {/* Search trigger */}
-        <Button variant="outline" size="sm" className="w-9 justify-center gap-2 border-border bg-card text-muted-foreground md:w-52 md:justify-start" aria-label="Search workspace" onClick={() => setSearchOpen(true)}>
+        <Button data-tour="global-search" variant="outline" size="sm" className="w-9 justify-center gap-2 border-border bg-card text-muted-foreground md:w-52 md:justify-start" aria-label="Search cases, solutions, and knowledge" onClick={() => setSearchOpen(true)}>
           <Search className="h-3.5 w-3.5" aria-hidden="true" />
-          <span className="hidden text-xs md:inline">Search workspace…</span>
+          <span className="hidden text-xs md:inline">Search cases and knowledge…</span>
           <kbd className="ml-auto hidden rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-2xs md:inline">Ctrl K</kbd>
         </Button>
 

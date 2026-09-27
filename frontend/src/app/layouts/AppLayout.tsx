@@ -1,13 +1,16 @@
-import { NavLink, Outlet, useLocation } from 'react-router-dom'
+import { NavLink, Outlet, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { Brain, Database, LayoutDashboard, MessageSquare, Ticket } from 'lucide-react'
 import { Sidebar } from './Sidebar'
 import { Topbar } from './Topbar'
 import { ErrorBoundary } from '@/components/common'
 import { useAuth } from '@/app/providers'
 import { hasPermission, type Permission } from '@/permissions'
+import { ProductTour } from '@/features/onboarding/ProductTour'
+import { productTours } from '@/features/onboarding/tours'
+import { authService } from '@/features/auth/services/authService'
 
 const pageTitles: Record<string, string> = {
-  '/dashboard':     'Dashboard',
+  '/dashboard':     'Home',
   '/tickets/new':   'Create Case',
   '/tickets':       'Cases',
   '/memory':        'Organizational Memory',
@@ -17,8 +20,9 @@ const pageTitles: Record<string, string> = {
   '/teams':         'Teams & Departments',
   '/sla':           'SLA & Escalations',
   '/notifications': 'Notifications',
-  '/chat':          'Evidence Workspace',
+  '/chat':          'Ask CaseMind',
   '/settings':      'Settings',
+  '/help':          'Help & Learning',
   '/admin/models':  'AI Governance',
   '/admin/users':   'User Management',
   '/admin/audit':   'Audit Log',
@@ -31,7 +35,20 @@ function resolveTitle(pathname: string): string {
 
 export function AppLayout() {
   const location = useLocation()
+  const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const title = resolveTitle(location.pathname)
+  const { user, updateUser } = useAuth()
+  const requestedTour = searchParams.get('tour')
+  const routeTour = location.pathname === '/dashboard' ? 'main' : location.pathname === '/memory' ? 'memory' : location.pathname === '/knowledge' ? 'knowledge' : location.pathname === '/chat' ? 'assistant' : null
+  const automaticTour = routeTour && user && !user.toursViewed.includes(routeTour) ? routeTour : null
+  const tourName = requestedTour && productTours[requestedTour] ? requestedTour : automaticTour
+  const finishTour = async () => {
+    if (!tourName) return
+    const next = await authService.updateOnboarding({ tourViewed: tourName })
+    updateUser(next)
+    if (requestedTour) navigate(location.pathname, { replace: true })
+  }
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
@@ -53,6 +70,7 @@ export function AppLayout() {
         </main>
         <MobileNavigation />
       </div>
+      <ProductTour open={Boolean(tourName)} steps={tourName ? productTours[tourName] : []} onFinish={finishTour} onSkip={finishTour} />
     </div>
   )
 }

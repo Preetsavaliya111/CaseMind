@@ -42,7 +42,7 @@ export function AIAnalysisPanel({ ticket }: AIAnalysisPanelProps) {
       <CardHeader><CardTitle className="flex items-center gap-2 text-sm text-primary"><Brain className="h-4 w-4" />Evidence-backed case intelligence</CardTitle></CardHeader>
       <CardContent className="space-y-4">
         {!analysis ? <>
-          <p className="text-sm leading-relaxed text-muted-foreground">Compare this case with verified memory, published knowledge, indexed documents, and other cases. The result is generated on demand and every source remains inspectable.</p>
+          <p className="text-sm leading-relaxed text-muted-foreground">Compare this case with reviewed solutions, published knowledge, search-ready documents, and similar cases. Every suggestion includes sources you can inspect.</p>
           <div className="rounded-lg border bg-card p-3 text-xs text-muted-foreground"><p className="flex items-center gap-2 font-medium text-foreground"><ShieldCheck className="h-4 w-4 text-success" />Transparent by design</p><p className="mt-1">Generated answers include source links and clearly disclose when evidence is insufficient.</p></div>
           {error && <p className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-xs text-destructive">{error}</p>}
           <div className="flex flex-wrap gap-2"><Button size="sm" onClick={analyze} loading={loading}>Analyze this case</Button><Button variant="outline" size="sm" onClick={() => navigate('/chat', { state: { prompt } })}>Open Evidence Workspace<ExternalLink className="h-3.5 w-3.5" /></Button></div>

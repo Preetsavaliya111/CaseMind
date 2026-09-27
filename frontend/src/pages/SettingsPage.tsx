@@ -4,9 +4,11 @@ import { useAuth } from '@/app/providers'
 import { authService } from '@/features/auth/services/authService'
 import { notificationService, type NotificationPreferences } from '@/features/settings/services/notificationService'
 import { formatDate } from '@/utils'
-import { User, Shield, Bell } from 'lucide-react'
+import { User, Shield, Bell, GraduationCap } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 
 export function SettingsPage() {
+  const navigate = useNavigate()
   const { user, updateUser, login } = useAuth()
   const [profileName, setProfileName] = useState(user?.name ?? '')
   const [passwordDraft, setPasswordDraft] = useState({ current: '', next: '', confirm: '' })
@@ -174,6 +176,11 @@ export function SettingsPage() {
             </div>
           ))}
         </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader><CardTitle className="flex items-center gap-2"><GraduationCap className="h-4 w-4" />Learning & tutorials</CardTitle></CardHeader>
+        <CardContent className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center"><div><p className="text-sm font-medium">Need a refresher?</p><p className="mt-1 text-xs text-muted-foreground">Restart the workspace tour or the complete guided setup from Help & Learning.</p></div><Button variant="outline" onClick={() => navigate('/help')}>Open Help & Learning</Button></CardContent>
       </Card>
 
     </div>

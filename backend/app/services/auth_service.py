@@ -146,4 +146,9 @@ def build_user_response(db: Session, user: User) -> dict:
         "teams": user_team_summaries(db, user),
         "departments": user_department_summaries(db, user),
         "default_workspace": default_workspace(roles),
+        "onboarding_completed": user.onboarding_completed,
+        "onboarding_step": user.onboarding_step,
+        "onboarding_data": user.onboarding_data or {},
+        "tours_viewed": user.tours_viewed or [],
+        "setup_checklist_dismissed": user.setup_checklist_dismissed,
     }

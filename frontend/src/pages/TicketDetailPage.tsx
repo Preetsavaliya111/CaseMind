@@ -359,7 +359,7 @@ export function TicketDetailPage() {
                 Organizational Precedent
               </div>
               <p className="text-2xs text-muted-foreground leading-relaxed">
-                Check historical resolution patterns and linked runbooks in the Memory Engine.
+                Review previous solutions, root causes, and linked guides in Organizational Memory.
               </p>
               <Button
                 variant="outline"
@@ -367,7 +367,7 @@ export function TicketDetailPage() {
                 className="h-7 w-full border-border text-xs text-muted-foreground hover:bg-accent hover:text-foreground"
                 onClick={() => navigate('/memory')}
               >
-                Browse Memory Patterns
+                Browse Organizational Memory
               </Button>
             </CardContent>
           </Card>

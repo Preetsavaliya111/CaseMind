@@ -12,7 +12,7 @@ const ThemeContext = createContext<ThemeContextValue | null>(null)
 
 function getInitialTheme(): Theme {
   const stored = window.localStorage.getItem('casemind-theme')
-  return stored === 'light' ? 'light' : 'dark'
+  return stored === 'dark' ? 'dark' : 'light'
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {

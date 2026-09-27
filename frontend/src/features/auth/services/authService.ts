@@ -19,6 +19,11 @@ interface ApiUser {
   teams: Array<{ id: string; name: string; department_id?: string }>
   departments: User['departments']
   default_workspace: string
+  onboarding_completed: boolean
+  onboarding_step: number
+  onboarding_data: Record<string, unknown>
+  tours_viewed: string[]
+  setup_checklist_dismissed: boolean
 }
 
 interface ApiTokenResponse {
@@ -58,6 +63,11 @@ function mapUser(user: ApiUser): User {
     mfaEnabled: user.mfa_enabled,
     createdAt: user.created_at,
     lastLoginAt: user.last_login_at,
+    onboardingCompleted: user.onboarding_completed,
+    onboardingStep: user.onboarding_step,
+    onboardingData: user.onboarding_data ?? {},
+    toursViewed: user.tours_viewed ?? [],
+    setupChecklistDismissed: user.setup_checklist_dismissed,
   }
 }
 
@@ -117,6 +127,26 @@ export const authService = {
       organization_domain: data.organizationDomain || null,
     })
     return mapUser(user)
+  },
+
+  async updateOnboarding(data: {
+    step?: number
+    completed?: boolean
+    data?: Record<string, unknown>
+    tourViewed?: string
+    checklistDismissed?: boolean
+  }): Promise<User> {
+    return mapUser(await patch<ApiUser>('/auth/onboarding', {
+      step: data.step,
+      completed: data.completed,
+      data: data.data,
+      tour_viewed: data.tourViewed,
+      checklist_dismissed: data.checklistDismissed,
+    }))
+  },
+
+  async restartOnboarding(): Promise<User> {
+    return mapUser(await post<ApiUser>('/auth/onboarding/restart'))
   },
 
   invitation: (token: string) => get<InvitationPreview>(`/auth/invitations/${encodeURIComponent(token)}`),
