@@ -40,12 +40,44 @@
     --pulse-duration: 3s;
   }
 
+  .light {
+    --background: 60 20% 99%;
+    --foreground: 210 18% 4%;
+    --card: 0 0% 100%;
+    --card-foreground: 210 18% 4%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 210 18% 4%;
+    --primary: 210 18% 4%;
+    --primary-foreground: 60 13% 95%;
+    --secondary: 210 10% 95%;
+    --secondary-foreground: 210 16% 12%;
+    --muted: 210 10% 94%;
+    --muted-foreground: 214 7% 40%;
+    --accent: 210 12% 90%;
+    --accent-foreground: 210 18% 4%;
+    --destructive: 0 72% 42%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 210 10% 82%;
+    --input: 210 10% 78%;
+    --ring: 210 14% 24%;
+    --sidebar: 60 20% 98%;
+    --sidebar-foreground: 210 18% 4%;
+    --sidebar-border: 210 10% 84%;
+    --sidebar-accent: 210 12% 90%;
+    --sidebar-accent-foreground: 210 18% 4%;
+    --color-success: 142 72% 29%;
+    --color-warning: 32 95% 36%;
+    --color-danger: 0 72% 42%;
+    --color-info: 217 91% 45%;
+    --color-ai: 217 91% 45%;
+  }
+
   * { @apply border-border; }
   html { scroll-behavior: smooth; }
   body {
     @apply bg-background text-foreground font-sans antialiased;
     font-feature-settings: 'rlig' 1, 'calt' 1;
-    background-image: radial-gradient(circle at 50% -20%, hsl(213 10% 18% / 0.5), transparent 40%);
+    background-image: radial-gradient(circle at 50% -20%, hsl(var(--border) / 0.5), transparent 40%);
   }
   :focus-visible { @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background; }
   ::selection { @apply bg-primary/20; }
@@ -67,7 +99,7 @@
 
 @layer components {
   .mono-grid {
-    background-image: linear-gradient(hsl(60 13% 95% / 0.035) 1px, transparent 1px), linear-gradient(90deg, hsl(60 13% 95% / 0.035) 1px, transparent 1px);
+    background-image: linear-gradient(hsl(var(--foreground) / 0.035) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground) / 0.035) 1px, transparent 1px);
     background-size: 44px 44px;
     mask-image: linear-gradient(to bottom, black 35%, transparent 92%);
   }

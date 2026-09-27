@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight, Brain, Check, ChevronDown, CircleDot, Database, FileSearch, Fingerprint, Menu, Search, ShieldCheck, Sparkles, Workflow, X } from 'lucide-react'
 import { Button } from '@/components/ui'
+import { ThemeToggle } from '@/components/common'
 
 const features = [
   { icon: Search, index: '01', title: 'Find precedent, not keywords', copy: 'Search cases, verified memory, and source documents by meaning. Every result stays inside your organization.' },
@@ -28,8 +29,8 @@ export function LandingPage() {
       <div className="mx-auto flex h-[68px] max-w-[1440px] items-center justify-between px-5 lg:px-10">
         <Link to="/" className="flex items-center gap-3" aria-label="CaseMind home"><LogoMark /><span className="font-display text-sm font-bold tracking-[-0.02em]">CASEMIND</span></Link>
         <nav className="hidden items-center gap-8 text-xs text-muted-foreground md:flex" aria-label="Primary navigation"><a className="transition-colors hover:text-foreground" href="#product">Product</a><a className="transition-colors hover:text-foreground" href="#memory">Memory engine</a><a className="transition-colors hover:text-foreground" href="#security">Security</a><a className="transition-colors hover:text-foreground" href="#faq">FAQ</a></nav>
-        <div className="hidden items-center gap-2 md:flex"><Button variant="ghost" size="sm" asChild><Link to="/login">Sign in</Link></Button><Button size="sm" asChild><Link to="/register">Create workspace<ArrowRight className="h-3.5 w-3.5" /></Link></Button></div>
-        <button className="rounded-lg border border-border p-2 md:hidden" onClick={() => setMenuOpen((value) => !value)} aria-label="Toggle navigation">{menuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}</button>
+        <div className="hidden items-center gap-2 md:flex"><ThemeToggle /><Button variant="ghost" size="sm" asChild><Link to="/login">Sign in</Link></Button><Button size="sm" asChild><Link to="/register">Create workspace<ArrowRight className="h-3.5 w-3.5" /></Link></Button></div>
+        <div className="flex items-center gap-1 md:hidden"><ThemeToggle /><button className="rounded-lg border border-border p-2" onClick={() => setMenuOpen((value) => !value)} aria-label="Toggle navigation">{menuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}</button></div>
       </div>
       {menuOpen && <div className="border-t border-border bg-sidebar px-5 py-5 md:hidden"><nav className="flex flex-col gap-4 text-sm text-muted-foreground"><a href="#product" onClick={() => setMenuOpen(false)}>Product</a><a href="#memory" onClick={() => setMenuOpen(false)}>Memory engine</a><a href="#security" onClick={() => setMenuOpen(false)}>Security</a><Link to="/login">Sign in</Link><Link className="font-semibold text-foreground" to="/register">Create workspace →</Link></nav></div>}
     </header>

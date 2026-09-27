@@ -7,6 +7,7 @@ import { ArrowLeft, Brain, CheckCircle2, Eye, EyeOff, ShieldCheck } from 'lucide
 
 import { Button, Input } from '@/components/ui'
 import { authService } from '@/features/auth/services/authService'
+import { ThemeToggle } from '@/components/common'
 
 
 const registerSchema = z.object({
@@ -40,7 +41,8 @@ export function RegisterPage() {
   }
 
   return (
-    <main className="min-h-screen bg-background px-6 py-10">
+    <main className="relative min-h-screen bg-background px-6 py-10">
+      <ThemeToggle className="absolute right-5 top-5 border border-border bg-card" />
       <div className="mx-auto grid max-w-5xl overflow-hidden rounded-2xl border bg-card shadow-2xl shadow-black/20 lg:grid-cols-[0.8fr_1.2fr]">
         <section className="hidden border-r bg-sidebar p-10 lg:flex lg:flex-col lg:justify-between">
           <Link to="/" className="flex items-center gap-3 text-sidebar-foreground">

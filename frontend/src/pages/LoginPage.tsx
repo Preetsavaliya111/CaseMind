@@ -8,6 +8,7 @@ import { Button, Input } from '@/components/ui'
 import { useAuth } from '@/app/providers'
 import { authService } from '@/features/auth/services/authService'
 import { Link } from 'react-router-dom'
+import { ThemeToggle } from '@/components/common'
 
 const loginSchema = z.object({
   email: z.string().email('Enter a valid email address'),
@@ -66,7 +67,8 @@ export function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex bg-background">
+    <div className="relative min-h-screen flex bg-background">
+      <ThemeToggle className="absolute right-5 top-5 z-10 border border-border bg-card" />
       {/* Left panel — branding */}
       <div className="hidden lg:flex lg:w-1/2 flex-col justify-between bg-sidebar p-12">
         <div className="flex items-center gap-3">

@@ -6,6 +6,7 @@ import { useAuth } from '@/app/providers'
 import { Button, Input, Skeleton } from '@/components/ui'
 import { authService, type InvitationPreview } from '@/features/auth/services/authService'
 import type { ApiError } from '@/types'
+import { ThemeToggle } from '@/components/common'
 
 export function AcceptInvitationPage() {
   const { token = '' } = useParams()
@@ -49,7 +50,8 @@ export function AcceptInvitationPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-background px-6 py-10">
+    <main className="relative flex min-h-screen items-center justify-center bg-background px-6 py-10">
+      <ThemeToggle className="absolute right-5 top-5 border border-border bg-card" />
       <div className="w-full max-w-lg overflow-hidden rounded-2xl border bg-card shadow-2xl shadow-black/20">
         <div className="border-b bg-sidebar px-8 py-7 text-sidebar-foreground">
           <Link to="/" className="flex items-center gap-3">

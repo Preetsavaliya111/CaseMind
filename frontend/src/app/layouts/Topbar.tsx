@@ -6,6 +6,7 @@ import { Button, Avatar, AvatarFallback, Badge, Dialog, DialogContent, DialogHea
 import { get } from '@/services/apiClient'
 import { initials } from '@/utils'
 import { notificationService } from '@/features/settings/services/notificationService'
+import { ThemeToggle } from '@/components/common'
 
 interface TopbarProps {
   title: string
@@ -72,6 +73,8 @@ export function Topbar({ title }: TopbarProps) {
         </Button>
 
         <Button variant="ghost" size="icon" className="relative" aria-label={`${unread} unread notifications`} onClick={() => navigate('/notifications')}><Bell className="h-4 w-4" />{unread > 0 && <span className="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[9px] font-bold text-primary-foreground">{unread > 99 ? '99+' : unread}</span>}</Button>
+
+        <ThemeToggle />
 
         {/* Profile */}
         <DropdownMenu>

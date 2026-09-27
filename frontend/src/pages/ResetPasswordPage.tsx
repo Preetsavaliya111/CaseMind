@@ -4,6 +4,7 @@ import { Link, useSearchParams } from 'react-router-dom'
 
 import { Button, Input } from '@/components/ui'
 import { authService } from '@/features/auth/services/authService'
+import { ThemeToggle } from '@/components/common'
 
 export function ResetPasswordPage() {
   const [params] = useSearchParams()
@@ -28,7 +29,8 @@ export function ResetPasswordPage() {
     } finally { setSaving(false) }
   }
 
-  return <main className="flex min-h-screen items-center justify-center bg-background px-6 py-12">
+  return <main className="relative flex min-h-screen items-center justify-center bg-background px-6 py-12">
+    <ThemeToggle className="absolute right-5 top-5 border border-border bg-card" />
     <section className="w-full max-w-md rounded-2xl border bg-card p-7 shadow-2xl shadow-black/20 sm:p-9">
       <Link to="/login" className="mb-8 inline-flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground"><ArrowLeft className="h-3.5 w-3.5" /> Back to sign in</Link>
       <div className="mb-7 flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary"><Brain className="h-5 w-5 text-primary-foreground" /></span><span className="text-lg font-bold">CaseMind</span></div>
