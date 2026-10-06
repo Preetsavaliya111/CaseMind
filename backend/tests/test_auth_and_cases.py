@@ -737,6 +737,55 @@ def test_ai_retrieval_filters_same_organization_documents_by_team(client: TestCl
     assert "SECRET-BETA-ONLY" not in captured["input"]
 
 
+def test_logout_revokes_the_current_token(client: TestClient):
+    token = register_and_login(client, "logout@example.com", "Logout Workspace")
+    headers = {"Authorization": f"Bearer {token}"}
+    assert client.get("/api/v1/auth/me", headers=headers).status_code == 200
+    assert client.post("/api/v1/auth/logout", headers=headers).status_code == 204
+    assert client.get("/api/v1/auth/me", headers=headers).status_code == 401
+
+
+def test_customer_cannot_see_internal_escalation_history(client: TestClient):
+    admin_token = register_and_login(client, "escalation-admin@example.com", "Escalation Workspace")
+    context = client.get("/api/v1/auth/me", headers={"Authorization": f"Bearer {admin_token}"}).json()
+    customer_token = create_role_user(client, organization_id=context["organization_id"], email="escalation-customer@example.com", role_slug="customer")
+    admin_headers = {"Authorization": f"Bearer {admin_token}"}
+    customer_headers = {"Authorization": f"Bearer {customer_token}"}
+    created = client.post(
+        "/api/v1/cases",
+        headers=customer_headers,
+        json={"subject": "Cannot sign in to the customer portal", "description": "The customer portal rejects the valid password after the account was activated.", "category": "account"},
+    )
+    assert created.status_code == 201
+    case_id = created.json()["id"]
+    escalated = client.post(f"/api/v1/cases/{case_id}/escalations", headers=admin_headers, json={"reason": "Internal escalation context"})
+    assert escalated.status_code == 201
+    customer_view = client.get(f"/api/v1/cases/{case_id}", headers=customer_headers)
+    assert customer_view.status_code == 200
+    assert customer_view.json()["escalations"] == []
+
+
+def test_provider_cannot_return_citations_for_sources_not_retrieved(client: TestClient, monkeypatch):
+    token = register_and_login(client, "citation-check@example.com", "Citation Workspace")
+    headers = {"Authorization": f"Bearer {token}"}
+    created = client.post(
+        "/api/v1/cases",
+        headers=headers,
+        json={"subject": "Citation validation case", "description": "A real case provides evidence for citation validation.", "category": "account"},
+    )
+    assert created.status_code == 201
+
+    class FakeProvider:
+        def generate(self, *, instructions: str, input_text: str) -> str:
+            return "This claim cites a source that was never retrieved. [S99]"
+
+    monkeypatch.setattr(rag_service, "get_response_provider", lambda: FakeProvider())
+    monkeypatch.setattr(rag_service, "get_embedding_provider", lambda: None)
+    response = client.post("/api/v1/ai/query", headers=headers, json={"question": "What happened in the citation validation case?"})
+    assert response.status_code == 502
+    assert "unverifiable citation" in response.json()["detail"]
+
+
 def test_knowledge_draft_publish_and_tenant_isolation(client: TestClient):
     first_token = register_and_login(client, "knowledge-first@example.com", "Knowledge First")
     second_token = register_and_login(client, "knowledge-second@example.com", "Knowledge Second")
@@ -768,6 +817,60 @@ def test_knowledge_draft_publish_and_tenant_isolation(client: TestClient):
     assert first_overview.status_code == 200
     assert first_overview.json()["published_knowledge"] == 1
     assert second_overview.json()["published_knowledge"] == 0
+
+
+def test_production_like_case_to_verified_memory_to_future_retrieval(client: TestClient, monkeypatch):
+    admin_token = register_and_login(client, "loop-admin@example.com", "Support Intelligence")
+    admin_headers = {"Authorization": f"Bearer {admin_token}"}
+    admin_context = client.get("/api/v1/auth/me", headers=admin_headers).json()
+    customer_token = create_role_user(client, organization_id=admin_context["organization_id"], email="loop-customer@example.com", role_slug="customer")
+    customer_headers = {"Authorization": f"Bearer {customer_token}"}
+
+    created = client.post(
+        "/api/v1/cases",
+        headers=customer_headers,
+        json={"subject": "Unable to log into my account", "description": "The customer cannot sign in after the identity provider certificate was rotated.", "category": "authentication", "priority": "high"},
+    )
+    assert created.status_code == 201, created.text
+    case_id = created.json()["id"]
+    assert client.get(f"/api/v1/cases/{case_id}", headers=admin_headers).status_code == 200
+
+    article = client.post(
+        "/api/v1/knowledge",
+        headers=admin_headers,
+        json={"title": "Recover access after certificate rotation", "summary": "Refresh identity metadata and verify a test sign-in after a certificate change.", "content": "Refresh the service-provider metadata, verify the audience URI, and test sign-in with a non-production account.", "category": "Authentication", "tags": ["SSO", "login"]},
+    )
+    assert article.status_code == 201
+    published = client.post(f"/api/v1/knowledge/{article.json()['id']}/publish", headers=admin_headers)
+    assert published.status_code == 200 and published.json()["visibility"] == "public"
+
+    memory = client.post(
+        "/api/v1/memory-items",
+        headers=admin_headers,
+        json={"title": "Certificate rotation requires metadata refresh", "summary": "Authentication failures after certificate rotations were resolved by refreshing metadata before testing access.", "memory_type": "resolution", "issue_pattern": "Users cannot log in immediately after an identity provider certificate rotation.", "root_cause": "Service-provider metadata retained the previous certificate.", "resolution_steps": ["Refresh metadata", "Verify the audience URI", "Test a non-production account"], "sources": [{"source_type": "case", "source_id": case_id}]},
+    )
+    assert memory.status_code == 201 and memory.json()["verification_state"] == "draft"
+    verified = client.post(f"/api/v1/memory-items/{memory.json()['id']}/verify", headers=admin_headers)
+    assert verified.status_code == 200 and verified.json()["verification_state"] == "verified"
+
+    class GroundedProvider:
+        def generate(self, *, instructions: str, input_text: str) -> str:
+            assert "Certificate rotation" in input_text or "certificate" in input_text.lower()
+            return "Refresh identity metadata and verify a test sign-in. [S1]"
+
+    monkeypatch.setattr(rag_service, "get_response_provider", lambda: GroundedProvider())
+    monkeypatch.setattr(rag_service, "get_embedding_provider", lambda: None)
+    answer = client.post("/api/v1/ai/query", headers=admin_headers, json={"question": "How should we resolve the login failure after certificate rotation?"})
+    assert answer.status_code == 200, answer.text
+    assert answer.json()["citations"]
+
+    reply = client.post(f"/api/v1/cases/{case_id}/comments", headers=admin_headers, json={"content": "Refresh metadata, verify the audience URI, and test with a non-production account.", "is_internal": False})
+    assert reply.status_code == 201
+    resolved = client.patch(f"/api/v1/cases/{case_id}/status", headers=admin_headers, json={"status": "resolved"})
+    assert resolved.status_code == 200 and resolved.json()["resolved_at"] is not None
+    future = client.post("/api/v1/ai/query", headers=admin_headers, json={"question": "What did we learn about certificate rotation login failures?"})
+    assert future.status_code == 200
+    assert any(citation["source_type"] in {"memory", "knowledge", "case"} for citation in future.json()["citations"])
 
 
 def test_admin_user_management_is_tenant_scoped_and_protects_self(client: TestClient):

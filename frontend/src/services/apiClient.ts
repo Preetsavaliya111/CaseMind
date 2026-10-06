@@ -1,7 +1,7 @@
 import axios, { type AxiosInstance, type AxiosRequestConfig, type AxiosResponse } from 'axios'
 import type { ApiError } from '@/types'
 
-const BASE_URL = (import.meta as unknown as { env: Record<string, string> }).env.VITE_API_BASE_URL ?? 'http://localhost:8000/api/v1'
+const BASE_URL = (import.meta as unknown as { env: Record<string, string> }).env.VITE_API_BASE_URL || '/api/v1'
 
 function createApiClient(): AxiosInstance {
   const client = axios.create({
@@ -26,8 +26,12 @@ function createApiClient(): AxiosInstance {
           window.location.href = '/login?reason=expired'
         }
       }
+      const detail = error.response?.data?.message ?? error.response?.data?.detail
+      const errorMessage = typeof detail === 'string' ? detail : Array.isArray(detail)
+        ? detail.slice(0, 5).map((item: { loc?: string[]; msg?: string }) => `${item.loc?.join('.') ?? 'Input'}: ${item.msg ?? 'Invalid value'}`).join('; ')
+        : 'An unexpected error occurred'
       const apiError: ApiError = {
-        message: error.response?.data?.message ?? error.response?.data?.detail ?? 'An unexpected error occurred',
+        message: errorMessage,
         code: error.response?.data?.code ?? 'UNKNOWN_ERROR',
         statusCode: error.response?.status ?? 500,
         details: error.response?.data?.details,

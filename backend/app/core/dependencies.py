@@ -1,7 +1,7 @@
 from collections.abc import Callable
 from uuid import UUID
 
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 
@@ -16,6 +16,7 @@ oauth2_scheme = OAuth2PasswordBearer(
 
 
 def get_current_user(
+    request: Request,
     token: str = Depends(oauth2_scheme),
     db: Session = Depends(get_db),
 ) -> User:
@@ -58,6 +59,8 @@ def get_current_user(
             detail="Account is inactive",
         )
 
+    request.state.user_id = str(user.id)
+    request.state.organization_id = str(user.organization_id)
     return user
 
 

@@ -1,0 +1,18 @@
+  .marketing-container { @apply mx-auto w-full max-w-[1280px] px-5 sm:px-8 lg:px-10; }
+  .marketing-section { @apply py-16 sm:py-20; }
+  .marketing-heading { @apply mt-5 text-balance font-display text-3xl font-semibold leading-tight tracking-[-0.04em] sm:text-4xl lg:text-5xl; }
+  .marketing-eyebrow { @apply flex items-center gap-2 text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground; }
+  .marketing [id] { scroll-margin-top: 100px; }
+  .marketing-hero-grid {
+    background-image: radial-gradient(hsl(var(--primary) / 0.14) 1px, transparent 1px);
+    background-size: 24px 24px;
+    mask-image: linear-gradient(to bottom, transparent, black 15%, transparent 60%);
+  }
+  .marketing summary::marker { color: hsl(var(--primary)); }
+@media (prefers-reduced-motion: reduce) {
+  .marketing *, .marketing *::before, .marketing *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}

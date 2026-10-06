@@ -11,7 +11,8 @@
     "lint:fix": "eslint src --ext ts,tsx --fix",
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\"",
     "type-check": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run src --pool=threads --maxWorkers=1 --no-file-parallelism --no-isolate",
+    "test:browser": "playwright test"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.4",
@@ -51,6 +52,10 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.7",
+    "jsdom": "^30.1.1",
     "@types/node": "^26.6.2",
     "@types/react": "^18.2.48",
     "@types/react-dom": "^18.2.18",

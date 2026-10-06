@@ -79,9 +79,7 @@ def _lexical_evidence(db: Session, current_user: User, question: str) -> list[Ev
         if score:
             evidence.append(Evidence("document", str(chunk.id), document.original_filename, chunk.content, f"/documents?document={document.id}", score))
 
-    article_query = apply_content_scope(db.query(KnowledgeArticle), db, current_user, KnowledgeArticle, KnowledgeArticle.author_id, allow_public=True)
-    if "knowledge.read_internal" not in permissions:
-        article_query = article_query.filter(KnowledgeArticle.visibility == "public", KnowledgeArticle.state == "published")
+    article_query = apply_content_scope(db.query(KnowledgeArticle), db, current_user, KnowledgeArticle, KnowledgeArticle.author_id, allow_public=True).filter(KnowledgeArticle.state == "published")
     articles = article_query.order_by(KnowledgeArticle.updated_at.desc()).limit(50).all()
     for article in articles:
         score = _lexical_score(question_tokens, f"{article.title} {article.summary} {article.content}")
@@ -150,6 +148,21 @@ def _save_interaction(db: Session, current_user: User, question: str, answer: st
     return interaction
 
 
+def _validated_provider_answer(answer: str, evidence: list[Evidence]) -> str:
+    """Reject citation keys that were not supplied to the provider.
+
+    A model-produced citation is only meaningful when it maps to the exact
+    evidence list used for generation. Returning an ungrounded answer here is
+    worse than honestly asking the agent to verify the sources.
+    """
+    valid_keys = {f"S{index}" for index in range(1, len(evidence) + 1)}
+    referenced = set(re.findall(r"\[S(\d+)\]", answer, flags=re.IGNORECASE))
+    invalid = {f"S{value}" for value in referenced if f"S{value}" not in valid_keys}
+    if invalid:
+        raise ResponseProviderError("AI provider returned an unverifiable citation")
+    return answer
+
+
 def answer_question(db: Session, current_user: User, question: str) -> dict:
     provider = get_response_provider()
     if provider is None:
@@ -182,6 +195,7 @@ def answer_question(db: Session, current_user: User, question: str) -> dict:
             instructions=instructions,
             input_text=f"Question:\n{question}\n\nOrganization evidence:\n{context}",
         )
+        answer = _validated_provider_answer(answer, evidence)
     except ResponseProviderError as exc:
         raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=str(exc)) from exc
 

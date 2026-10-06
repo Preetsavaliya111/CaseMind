@@ -1,5 +1,7 @@
 # CaseMind verification record
 
+> Historical evidence only. Current release checks and unresolved blockers are recorded in `DEPLOYMENT_READINESS_AUDIT.md`; do not infer current service health from this report.
+
 Last verified: 2026-09-25
 
 ## Automated checks

@@ -19,6 +19,7 @@ const pageTitles: Record<string, string> = {
   '/analytics':     'Analytics',
   '/teams':         'Teams & Departments',
   '/sla':           'SLA & Escalations',
+  '/workflows':     'Workflows',
   '/notifications': 'Notifications',
   '/chat':          'Ask CaseMind',
   '/settings':      'Settings',

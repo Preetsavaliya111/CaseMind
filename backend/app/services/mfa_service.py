@@ -49,7 +49,7 @@ def verify_totp(secret: str, value: str, last_used_step: int | None = None) -> i
         return None
     current = int(time.time()) // 30
     for step in (current - 1, current, current + 1):
-        if step != last_used_step and hmac.compare_digest(_code(secret, step), normalized):
+        if (last_used_step is None or step > last_used_step) and hmac.compare_digest(_code(secret, step), normalized):
             return step
     return None
 
@@ -83,12 +83,16 @@ def enable_mfa(db: Session, user: User, code: str) -> list[str]:
     user.mfa_recovery_code_hashes = [_recovery_hash(item) for item in recovery_codes]
     user.mfa_last_used_step = None
     user.mfa_enabled = True
+    user.token_version += 1
     record_audit(db, user, "security.mfa_enabled", "user", user.id)
     db.commit()
     return recovery_codes
 
 
 def verify_user_code(db: Session, user: User, code: str, *, consume_recovery: bool = True) -> bool:
+    user = db.query(User).filter(User.id == user.id).populate_existing().with_for_update().one()
+    if not user.is_active or not user.mfa_enabled:
+        return False
     secret = _decrypt(user.mfa_secret_encrypted)
     step = verify_totp(secret, code, user.mfa_last_used_step)
     if step is not None:
@@ -115,17 +119,21 @@ def disable_mfa(db: Session, user: User, current_password: str, code: str) -> No
     user.mfa_pending_secret_encrypted = None
     user.mfa_recovery_code_hashes = []
     user.mfa_last_used_step = None
+    user.token_version += 1
     record_audit(db, user, "security.mfa_disabled", "user", user.id)
     db.commit()
 
 
 def user_from_challenge(db: Session, challenge_token: str) -> User:
-    subject = decode_mfa_challenge_token(challenge_token)
+    decoded = decode_mfa_challenge_token(challenge_token)
+    if decoded is None:
+        raise HTTPException(status_code=401, detail="MFA challenge is invalid or expired")
+    subject, version = decoded
     try:
         user_id = UUID(subject or "")
     except ValueError as exc:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="MFA challenge is invalid or expired") from exc
-    user = db.query(User).filter(User.id == user_id, User.is_active.is_(True), User.mfa_enabled.is_(True)).first()
-    if user is None:
+    user = db.query(User).filter(User.id == user_id, User.is_active.is_(True), User.mfa_enabled.is_(True)).populate_existing().with_for_update().first()
+    if user is None or user.token_version != version:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="MFA challenge is invalid or expired")
     return user

@@ -70,7 +70,7 @@ def login(
     )
 
     if user.mfa_enabled:
-        return MFAChallengeResponse(challenge_token=create_mfa_challenge_token(str(user.id)))
+        return MFAChallengeResponse(challenge_token=create_mfa_challenge_token(str(user.id), user.token_version))
 
     record_successful_login(db, user)
     return TokenResponse(
@@ -94,6 +94,16 @@ def mfa_verify(data: MFAVerifyRequest, db: Session = Depends(get_db)):
 @router.get("/mfa/status", response_model=MFAStatusResponse)
 def mfa_status(current_user: User = Depends(get_current_user)):
     return {"enabled": current_user.mfa_enabled}
+
+
+@router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
+def logout(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    from app.services.audit_service import record_audit
+    # This JWT architecture has account-wide revocation rather than a session table.
+    user = db.query(User).filter(User.id == current_user.id).populate_existing().with_for_update().one()
+    user.token_version += 1
+    record_audit(db, user, "security.logout", "user", user.id)
+    db.commit()
 
 
 @router.post("/mfa/setup", response_model=MFASetupResponse)

@@ -69,16 +69,24 @@ def update_article(db: Session, user: User, article_id: UUID, data: KnowledgeArt
             article.state = "draft"
             article.published_at = None
             article.visibility = "team" if article.team_id else "organization"
+        if "tags" in changes and changes["tags"] is not None:
+            article.tags = sorted({tag.strip().lower() for tag in changes["tags"] if tag.strip()})
         db.commit()
     return get_article(db, user, article.id)
 
 
-def publish_article(db: Session, user: User, article_id: UUID) -> KnowledgeArticle:
+def publish_article(db: Session, user: User, article_id: UUID, *, visibility: str | None = None) -> KnowledgeArticle:
     article = get_article(db, user, article_id)
+    # Existing drafts are created with an internal working scope. Publishing
+    # must explicitly opt into a narrower audience; the default remains the
+    # established customer-safe public publication flow.
+    audience = visibility or "public"
+    if audience == "team" and article.team_id is None or audience == "department" and article.department_id is None:
+        raise HTTPException(422, "The article has no scope for that audience")
     article.state = "published"
-    article.visibility = "public"
+    article.visibility = audience
     article.published_at = datetime.now(timezone.utc)
-    record_audit(db, user, "knowledge.published", "knowledge_article", article.id, {"title": article.title, "version": article.version})
+    record_audit(db, user, "knowledge.published", "knowledge_article", article.id, {"title": article.title, "version": article.version, "visibility": audience})
     db.commit()
     return get_article(db, user, article.id)
 

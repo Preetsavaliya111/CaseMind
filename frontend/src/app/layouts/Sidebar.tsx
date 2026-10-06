@@ -6,6 +6,7 @@ import {
   ScrollText,
   Timer,
   HelpCircle,
+  GitBranch,
 } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
 import { cn } from '@/utils'
@@ -31,6 +32,7 @@ const mainNav: NavItem[] = [
   { to: '/analytics', icon: BarChart3, label: 'Analytics', permission: 'analytics.view' },
   { to: '/teams', icon: Network, label: 'Teams', permission: 'teams.view' },
   { to: '/sla', icon: Timer, label: 'SLA & Escalations', permission: 'sla.view' },
+  { to: '/workflows', icon: GitBranch, label: 'Workflows', permission: 'workflows.view' },
   { to: '/settings', icon: Settings, label: 'Settings' },
   { to: '/help', icon: HelpCircle, label: 'Help & Learning' },
 ]

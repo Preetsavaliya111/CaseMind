@@ -1,0 +1,91 @@
+# Standalone production reference; do NOT merge with the development Compose file.
+name: casemind-production
+x-backend: &backend
+  image: ${BACKEND_IMAGE:-casemind-backend:local}
+  build: ./backend
+  env_file:
+    - ${CASEMIND_BACKEND_ENV_FILE:?Set an absolute path to the protected backend environment file}
+  environment:
+    ENVIRONMENT: production
+    DOCUMENT_STORAGE_PATH: /var/lib/casemind/documents
+    QDRANT_URL: http://qdrant:6333
+  volumes:
+    - documents:/var/lib/casemind/documents
+  networks: [private, egress]
+  read_only: true
+  tmpfs: [/tmp]
+  security_opt: [no-new-privileges:true]
+  cap_drop: [ALL]
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: casemind
+      POSTGRES_USER: casemind
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+    secrets: [postgres_password]
+    volumes: [postgres:/var/lib/postgresql/data]
+    networks: [private]
+    healthcheck:
+      test: [CMD-SHELL, pg_isready -U casemind -d casemind]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  qdrant:
+    image: qdrant/qdrant:v1.15.4
+    restart: unless-stopped
+    # File contains QDRANT__SERVICE__API_KEY; use the same key in backend QDRANT_API_KEY.
+    env_file:
+      - ${CASEMIND_QDRANT_ENV_FILE:?Set an absolute path to the protected Qdrant environment file}
+    volumes: [qdrant:/qdrant/storage, qdrant-snapshots:/qdrant/snapshots]
+    networks: [private]
+
+  migrate:
+    <<: *backend
+    profiles: [release]
+    command: [alembic, upgrade, head]
+    restart: "no"
+    depends_on:
+      postgres: { condition: service_healthy }
+
+  backend:
+    <<: *backend
+    restart: unless-stopped
+    depends_on:
+      postgres: { condition: service_healthy }
+      qdrant: { condition: service_started }
+    # Liveness restarts belong to the runtime; readiness gates traffic at the ingress.
+    healthcheck:
+      test: [CMD, python, -c, "from urllib.request import urlopen; urlopen('http://127.0.0.1:8000/api/v1/health/ready', timeout=12)"]
+      interval: 30s
+      timeout: 15s
+      start_period: 30s
+      retries: 3
+
+  frontend:
+    image: ${FRONTEND_IMAGE:-casemind-frontend:local}
+    build: ./frontend
+    restart: unless-stopped
+    ports: ["127.0.0.1:8080:8080"]
+    depends_on:
+      backend: { condition: service_healthy }
+    networks: [egress]
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+
+networks:
+  private: { internal: true }
+  egress: {}
+volumes:
+  postgres:
+  qdrant:
+  qdrant-snapshots:
+  documents:
+secrets:
+  postgres_password:
+    file: ${CASEMIND_POSTGRES_PASSWORD_FILE:?Set an absolute path to the PostgreSQL password file}

@@ -14,6 +14,8 @@ from app.core.config import settings
 from app.services.authorization_service import assign_system_role, default_workspace, get_permission_codes, get_role_slugs
 from app.services.organization_unit_service import ensure_default_support_structure, user_department_summaries, user_team_summaries
 
+_DUMMY_PASSWORD_HASH = hash_password("CaseMind-unused-login-timing-value")
+
 
 def register_user(
     db: Session,
@@ -84,22 +86,8 @@ def authenticate_user(
         .first()
     )
 
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid email or password",
-        )
-
-    if not user.is_active:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Account is inactive",
-        )
-
-    if not verify_password(
-        password,
-        user.hashed_password,
-    ):
+    valid_password = verify_password(password, user.hashed_password if user else _DUMMY_PASSWORD_HASH)
+    if not user or not valid_password or not user.is_active:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid email or password",
@@ -120,7 +108,9 @@ def token_expiry_seconds() -> int:
 
 
 def record_successful_login(db: Session, user: User) -> None:
+    from app.services.audit_service import record_audit
     user.last_login_at = datetime.now(timezone.utc)
+    record_audit(db, user, "security.login", "user", user.id)
     db.commit()
 
 

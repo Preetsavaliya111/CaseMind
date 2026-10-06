@@ -14,5 +14,6 @@ from app.models.audit import AuditEvent
 from app.models.sla import CaseEscalation, SLAPolicy
 from app.models.notification import Notification
 from app.models.password_reset import PasswordResetToken
+from app.models.workflow import CaseEvent, Workflow, WorkflowRun
 
 __all__ = ["Base", "Organization", "User", "SupportCase", "CaseComment", "Document", "DocumentChunk", "MemoryItem", "MemorySource", "KnowledgeArticle", "AIInteraction", "Permission", "Role", "RolePermission", "UserRole", "Department", "DepartmentMember", "Team", "TeamMember", "TicketAccess", "UserInvitation", "AuditEvent", "SLAPolicy", "CaseEscalation", "Notification", "PasswordResetToken"]

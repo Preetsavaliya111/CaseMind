@@ -20,7 +20,7 @@ export function KnowledgePage() {
   const [error, setError] = useState<string | null>(null)
   const [formErrors, setFormErrors] = useState<{ title?: string; summary?: string; content?: string; category?: string }>({})
   const canEdit = usePermission('knowledge.edit')
-  const canPublish = usePermission('knowledge.delete')
+  const canPublish = usePermission('knowledge.publish')
   const queryClient = useQueryClient()
   const searching = query.trim().length >= 2
   const articlesQuery = useKnowledgeArticles()

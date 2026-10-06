@@ -1,5 +1,7 @@
 # CaseMind current state
 
+> Historical report. For the 2026-10-03 source audit and current executed checks, use `INDUSTRY_EXPANSION_AUDIT.md`, `INDUSTRY_ROADMAP.md` and `DEPLOYMENT_READINESS_AUDIT.md`. The older production/provider verification claims below have not been carried forward as current evidence.
+
 Audit date: 2026-09-20
 
 ## Rebuild progress — 2026-09-24

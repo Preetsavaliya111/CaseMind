@@ -52,6 +52,7 @@ const SLAPage = lazy(() => import('@/pages/SLAPage').then((m) => ({ default: m.S
 const NotificationsPage = lazy(() => import('@/pages/NotificationsPage').then((m) => ({ default: m.NotificationsPage })))
 const OnboardingPage = lazy(() => import('@/pages/OnboardingPage').then((m) => ({ default: m.OnboardingPage })))
 const HelpPage = lazy(() => import('@/pages/HelpPage').then((m) => ({ default: m.HelpPage })))
+const WorkflowsPage = lazy(() => import('@/pages/WorkflowsPage').then((m) => ({ default: m.WorkflowsPage })))
 
 function PageLoader() {
   return (
@@ -122,6 +123,7 @@ export const router = createBrowserRouter([
       { path: 'analytics',    element: <RequirePermission permission="analytics.view">{withSuspense(AnalyticsPage)}</RequirePermission> },
       { path: 'teams',        element: <RequirePermission permission="teams.view">{withSuspense(TeamsPage)}</RequirePermission> },
       { path: 'sla',          element: <RequirePermission permission="sla.view">{withSuspense(SLAPage)}</RequirePermission> },
+      { path: 'workflows',    element: <RequirePermission permission="workflows.view">{withSuspense(WorkflowsPage)}</RequirePermission> },
       { path: 'notifications', element: withSuspense(NotificationsPage) },
       { path: 'chat',         element: <RequirePermission permission="chat.use">{withSuspense(ChatPage)}</RequirePermission> },
       { path: 'settings',     element: withSuspense(SettingsPage) },

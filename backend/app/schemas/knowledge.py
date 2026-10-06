@@ -8,6 +8,11 @@ from pydantic import BaseModel, ConfigDict, Field
 ArticleState = Literal["draft", "published", "archived"]
 
 
+class KnowledgePublishRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    visibility: Literal["team", "department", "organization", "public"] | None = None
+
+
 class KnowledgeArticleCreate(BaseModel):
     title: str = Field(min_length=5, max_length=220)
     summary: str = Field(min_length=20, max_length=2000)

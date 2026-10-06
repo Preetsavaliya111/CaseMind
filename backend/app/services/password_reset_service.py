@@ -29,6 +29,7 @@ def _aware(value: datetime) -> datetime:
 
 
 def create_reset(db: Session, user: User, actor: User | None = None) -> dict:
+    user = db.query(User).filter(User.id == user.id).populate_existing().with_for_update().one()
     now = _now()
     db.query(PasswordResetToken).filter(PasswordResetToken.user_id == user.id, PasswordResetToken.used_at.is_(None)).update({"used_at": now}, synchronize_session=False)
     raw = secrets.token_urlsafe(32)
@@ -49,10 +50,10 @@ def request_reset(db: Session, email: str) -> None:
 
 
 def confirm_reset(db: Session, token: str, new_password: str) -> None:
-    item = db.query(PasswordResetToken).filter(PasswordResetToken.token_hash == _hash(token)).first()
+    item = db.query(PasswordResetToken).filter(PasswordResetToken.token_hash == _hash(token)).with_for_update().first()
     if item is None or item.used_at is not None or _aware(item.expires_at) <= _now():
         raise HTTPException(status_code=status.HTTP_410_GONE, detail="Password reset link is invalid or expired")
-    user = db.query(User).filter(User.id == item.user_id, User.is_active.is_(True)).first()
+    user = db.query(User).filter(User.id == item.user_id, User.is_active.is_(True)).populate_existing().with_for_update().first()
     if user is None:
         raise HTTPException(status_code=status.HTTP_410_GONE, detail="Password reset link is invalid or expired")
     user.hashed_password = hash_password(new_password)

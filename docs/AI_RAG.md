@@ -8,11 +8,11 @@ Documents are validated by extension, declared MIME type, content signature, and
 
 ## Retrieval
 
-The query path combines bounded lexical candidates from verified Memory, Cases, published Knowledge, and extracted document chunks with Qdrant results when embeddings are available. SQL access requires the authenticated organization plus the user's effective permission, team, and department scope. Qdrant results are re-hydrated through those SQL rules, so an inaccessible same-organization vector is discarded before prompt construction. Results are deduplicated and ranked only after authorization.
+The query path combines bounded lexical candidates from verified Memory, Cases, published Knowledge, and extracted document chunks with Qdrant results when embeddings are available. Draft Knowledge is excluded from AI retrieval. SQL access requires the authenticated organization plus the user's effective permission, team, and department scope. Qdrant results are re-hydrated through those SQL rules, so an inaccessible same-organization vector is discarded before prompt construction. Results are deduplicated and ranked only after authorization.
 
 ## Generation and safety
 
-Retrieved content is labeled as untrusted evidence and kept separate from system instructions. The model is instructed to use only supplied evidence, cite claims with stable `[S#]` keys, disclose insufficient or conflicting evidence, and ignore instructions embedded in sources. Responses API storage is disabled. The API returns structured citations with source identifiers, excerpts, relevance signals, and in-product locators.
+Retrieved content is labeled as untrusted evidence and kept separate from system instructions. The model is instructed to use only supplied evidence, cite claims with stable `[S#]` keys, disclose insufficient or conflicting evidence, and ignore instructions embedded in sources. Responses API storage is disabled. The API validates every returned citation key against the evidence actually supplied and rejects unverifiable provider output. The API returns structured citations with source identifiers, excerpts, relevance signals, and in-product locators.
 
 If no provider key exists, generation returns a service-unavailable response and the frontend displays a setup-pending state. CaseMind never substitutes fixture answers or invented confidence values.
 

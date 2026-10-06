@@ -3,6 +3,7 @@
 All product routes are under `/api/v1`. Except for health, registration, and login, endpoints require a bearer access token.
 
 - `/auth`: organization registration, login, current user, profile/password management with session revocation, one-time password recovery, public invitation acceptance, and optional authenticator-app MFA enrollment/verification.
+- `/auth/logout`: account-wide bearer-token invalidation for the authenticated account.
 - `/cases`: paginated Case lifecycle, status changes, comments, access-controlled attachments, and archival.
 - `/documents`: secure upload, status, extracted chunks, reprocessing, and archival.
 - `/memory-items`: evidence-linked Organizational Memory, verification, and archival.
@@ -20,3 +21,5 @@ All product routes are under `/api/v1`. Except for health, registration, and log
 - `/admin/ai-configuration`: non-secret provider and retrieval configuration.
 
 Organization ownership is derived from the authenticated user; clients cannot select an organization identifier for product queries. OpenAPI documentation at `/docs` is the canonical field-level reference.
+
+Knowledge drafts are internal until published. Publishing defaults to customer-safe `public` visibility; managers may explicitly publish to `team`, `department`, or `organization` through the API when the article has that scope. AI retrieval uses published Knowledge only and treats retrieved text as untrusted evidence.

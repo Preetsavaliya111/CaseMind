@@ -58,7 +58,7 @@ def authorized_case_query(db: Session, current_user: User):
 def present_case(db: Session, current_user: User, case: SupportCase) -> CaseResponse:
     payload = CaseResponse.model_validate(case)
     if "ticket.internal_note" not in set(get_permission_codes(db, current_user)):
-        payload = payload.model_copy(update={"comments": [comment for comment in payload.comments if not comment.is_internal]})
+        payload = payload.model_copy(update={"comments": [comment for comment in payload.comments if not comment.is_internal], "escalations": []})
     return payload
 
 
@@ -124,6 +124,8 @@ def list_assignees(db: Session, organization_id: UUID) -> list[dict]:
 
 
 def create_case(db: Session, current_user: User, data: CaseCreate) -> SupportCase:
+    if data.assignee_id is not None and "ticket.assign" not in get_permission_codes(db, current_user):
+        raise HTTPException(status_code=403, detail="You cannot assign this case")
     _validate_assignee(db, current_user.organization_id, data.assignee_id)
     values = data.model_dump()
     values["tags"] = sorted({tag.strip().lower() for tag in data.tags if tag.strip()})
@@ -147,13 +149,17 @@ def create_case(db: Session, current_user: User, data: CaseCreate) -> SupportCas
     apply_sla_to_case(db, case)
     record_audit(db, current_user, "case.created", "case", case.id, {"case_number": case.case_number, "priority": case.priority})
     notify_assignment(db, case, current_user)
+    from app.services.workflow_service import emit_case_events
+    emit_case_events(db, current_user, case, ["case.created"] + (["case.assigned"] if data.assignee_id else []))
     db.commit()
     return get_case(db, current_user, case.id)
 
 
-def update_case(db: Session, current_user: User, case_id: UUID, data: CaseUpdate) -> SupportCase:
+def update_case(db: Session, current_user: User, case_id: UUID, data: CaseUpdate, *, commit: bool = True) -> SupportCase:
+    db.query(SupportCase.id).filter(SupportCase.id == case_id, SupportCase.organization_id == current_user.organization_id).with_for_update().first()
     case = get_case(db, current_user, case_id)
     previous_assignee = case.assignee_id
+    previous_priority = case.priority
     values = data.model_dump(exclude_unset=True)
     if "assignee_id" in values:
         permissions = set(get_permission_codes(db, current_user))
@@ -165,7 +171,8 @@ def update_case(db: Session, current_user: User, case_id: UUID, data: CaseUpdate
         values["tags"] = sorted({tag.strip().lower() for tag in values["tags"] if tag.strip()})
     if "priority" in values and values["priority"] != case.priority and "ticket.change_priority" not in set(get_permission_codes(db, current_user)):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You cannot change case priority")
-    if "ticket.view_own" in set(get_permission_codes(db, current_user)) and case.reporter_id == current_user.id and case.assignee_id is not None:
+    permissions = set(get_permission_codes(db, current_user))
+    if "ticket.view_own" in permissions and "ticket.internal_note" not in permissions and case.reporter_id == current_user.id and case.assignee_id is not None:
         protected = {"subject", "description", "priority", "category", "product", "customer_name", "assignee_id", "tags"}
         if protected.intersection(values):
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Assigned cases can no longer be edited by the customer")
@@ -178,13 +185,31 @@ def update_case(db: Session, current_user: User, case_id: UUID, data: CaseUpdate
         record_audit(db, current_user, "case.updated", "case", case.id, {"case_number": case.case_number, "fields": sorted(values)})
     if "assignee_id" in values and case.assignee_id != previous_assignee:
         notify_assignment(db, case, current_user)
-    db.commit()
+    from app.services.workflow_service import emit_case_events
+    events = []
+    if case.assignee_id != previous_assignee:
+        events.append("case.assigned")
+    if case.priority != previous_priority:
+        events.append("case.priority_changed")
+    emit_case_events(db, current_user, case, events)
+    db.commit() if commit else db.flush()
     return get_case(db, current_user, case.id)
 
 
-def change_case_status(db: Session, current_user: User, case_id: UUID, new_status: str) -> SupportCase:
+def change_case_status(db: Session, current_user: User, case_id: UUID, new_status: str, *, commit: bool = True) -> SupportCase:
+    db.query(SupportCase.id).filter(SupportCase.id == case_id, SupportCase.organization_id == current_user.organization_id).with_for_update().first()
     case = get_case(db, current_user, case_id)
     previous_status = case.status
+    permissions = set(get_permission_codes(db, current_user))
+    required = {"ticket.change_status"}
+    if new_status in {"resolved", "closed"}:
+        required.add("ticket.resolve")
+    if new_status == "reopened" or (previous_status in {"resolved", "closed"} and new_status not in {"resolved", "closed"}):
+        required.add("ticket.reopen")
+    if not required.issubset(permissions):
+        raise HTTPException(403, "You cannot perform this status transition")
+    if new_status == previous_status:
+        return case
     was_breached = case.sla_breached
     case.status = new_status
     now = datetime.now(timezone.utc)
@@ -196,17 +221,20 @@ def change_case_status(db: Session, current_user: User, case_id: UUID, new_statu
             case.sla_breached_at = now
     if new_status == "resolved":
         case.resolved_at = now
+        case.closed_at = None
     elif new_status == "closed":
         case.closed_at = now
-    elif new_status == "reopened":
+    else:
         case.resolved_at = None
         case.closed_at = None
     record_audit(db, current_user, "case.status_changed", "case", case.id, {"case_number": case.case_number, "from": previous_status, "to": new_status})
-    db.commit()
+    from app.services.workflow_service import emit_case_events
+    emit_case_events(db, current_user, case, ["case.status_changed"] + (["case.resolved"] if new_status == "resolved" else []))
+    db.commit() if commit else db.flush()
     return get_case(db, current_user, case.id)
 
 
-def add_case_comment(db: Session, current_user: User, case_id: UUID, data: CaseCommentCreate) -> SupportCase:
+def add_case_comment(db: Session, current_user: User, case_id: UUID, data: CaseCommentCreate, *, commit: bool = True) -> SupportCase:
     case = get_case(db, current_user, case_id)
     if data.is_internal and "ticket.internal_note" not in set(get_permission_codes(db, current_user)):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You cannot add internal notes")
@@ -215,7 +243,7 @@ def add_case_comment(db: Session, current_user: User, case_id: UUID, data: CaseC
     db.flush()
     record_audit(db, current_user, "case.internal_note_added" if data.is_internal else "case.reply_added", "case", case.id, {"case_number": case.case_number, "comment_id": str(comment.id)})
     notify_reply(db, case, current_user, data.is_internal)
-    if case.first_responded_at is None and "ticket.internal_note" in set(get_permission_codes(db, current_user)):
+    if case.first_responded_at is None and not db.info.get("workflow_running") and "ticket.internal_note" in set(get_permission_codes(db, current_user)):
         responded_at = datetime.now(timezone.utc)
         if case.first_response_due_at is not None:
             deadline = case.first_response_due_at if case.first_response_due_at.tzinfo else case.first_response_due_at.replace(tzinfo=timezone.utc)
@@ -223,7 +251,24 @@ def add_case_comment(db: Session, current_user: User, case_id: UUID, data: CaseC
                 case.sla_breached_at = responded_at
         case.first_responded_at = responded_at
     case.updated_at = datetime.now(timezone.utc)
-    db.commit()
+    db.commit() if commit else db.flush()
+    return get_case(db, current_user, case.id)
+
+
+def assign_case_team(db: Session, current_user: User, case_id: UUID, team_id: UUID, *, commit: bool = True) -> SupportCase:
+    from app.services.workflow_service import _team, emit_case_events
+    case = get_case(db, current_user, case_id)
+    required = "ticket.reassign" if case.team_id else "ticket.assign"
+    if required not in get_permission_codes(db, current_user):
+        raise HTTPException(403, "You cannot assign this case team")
+    team = _team(db, current_user.organization_id, team_id)
+    if case.team_id == team.id:
+        return case
+    case.team_id = team.id
+    case.department_id = team.department_id
+    record_audit(db, current_user, "case.team_assigned", "case", case.id, {"team_id": str(team.id)})
+    emit_case_events(db, current_user, case, ["case.assigned"])
+    db.commit() if commit else db.flush()
     return get_case(db, current_user, case.id)
 
 

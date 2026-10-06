@@ -86,29 +86,32 @@ def decode_access_token(token: str) -> Optional[tuple[str, int]]:
             token,
             settings.SECRET_KEY,
             algorithms=[settings.ALGORITHM],
+            options={"require_exp": True, "require_sub": True},
         )
 
         subject = payload.get("sub")
 
-        if not subject or payload.get("typ") != "access":
+        version = payload.get("ver")
+        if not subject or payload.get("typ") != "access" or type(version) is not int or version < 0:
             return None
 
-        return str(subject), int(payload.get("ver", -1))
+        return str(subject), version
 
     except JWTError:
         return None
 
 
-def create_mfa_challenge_token(subject: str) -> str:
+def create_mfa_challenge_token(subject: str, token_version: int = 0) -> str:
     expire = datetime.now(timezone.utc) + timedelta(minutes=5)
-    return jwt.encode({"sub": subject, "exp": expire, "typ": "mfa"}, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+    return jwt.encode({"sub": subject, "exp": expire, "typ": "mfa", "ver": token_version}, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
 
 
-def decode_mfa_challenge_token(token: str) -> Optional[str]:
+def decode_mfa_challenge_token(token: str) -> Optional[tuple[str, int]]:
     try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
-        if payload.get("typ") != "mfa" or not payload.get("sub"):
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM], options={"require_exp": True, "require_sub": True})
+        version = payload.get("ver")
+        if payload.get("typ") != "mfa" or not payload.get("sub") or type(version) is not int or version < 0:
             return None
-        return str(payload["sub"])
+        return str(payload["sub"]), version
     except JWTError:
         return None

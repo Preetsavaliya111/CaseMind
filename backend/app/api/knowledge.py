@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from app.core.dependencies import require_permission
 from app.db.database import get_db
 from app.models.user import User
-from app.schemas.knowledge import KnowledgeArticleCreate, KnowledgeArticleListResponse, KnowledgeArticleResponse, KnowledgeArticleUpdate
+from app.schemas.knowledge import KnowledgeArticleCreate, KnowledgeArticleListResponse, KnowledgeArticleResponse, KnowledgeArticleUpdate, KnowledgePublishRequest
 from app.services.knowledge_service import archive_article, create_article, get_article, list_articles, publish_article, update_article
 
 
@@ -39,8 +39,8 @@ def update(article_id: UUID, data: KnowledgeArticleUpdate, current_user: User = 
 
 
 @router.post("/{article_id}/publish", response_model=KnowledgeArticleResponse)
-def publish(article_id: UUID, current_user: User = Depends(publisher), db: Session = Depends(get_db)):
-    return publish_article(db, current_user, article_id)
+def publish(article_id: UUID, data: KnowledgePublishRequest | None = None, current_user: User = Depends(publisher), db: Session = Depends(get_db)):
+    return publish_article(db, current_user, article_id, visibility=data.visibility if data else None)
 
 
 @router.delete("/{article_id}", status_code=status.HTTP_204_NO_CONTENT)

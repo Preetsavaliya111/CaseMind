@@ -7,7 +7,7 @@ interface AuthContextValue {
   isAuthenticated: boolean
   isLoading: boolean
   login: (tokens: AuthTokens, user: User) => void
-  logout: () => void
+  logout: () => Promise<void>
   updateUser: (user: User) => void
   hasPermission: (permission: string) => boolean
   hasRole: (role: User['roles'][number]) => boolean
@@ -41,10 +41,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(false)
   }, [])
 
-  const logout = useCallback(() => {
-    localStorage.removeItem('access_token')
-    localStorage.removeItem('refresh_token')
-    setUser(null)
+  const logout = useCallback(async () => {
+    try {
+      await authService.logout()
+    } catch {
+      // A failed network call must not leave the local session active.
+    } finally {
+      localStorage.removeItem('access_token')
+      localStorage.removeItem('refresh_token')
+      setUser(null)
+    }
   }, [])
   const updateUser = useCallback((nextUser: User) => setUser(nextUser), [])
 

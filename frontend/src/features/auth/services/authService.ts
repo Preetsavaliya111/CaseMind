@@ -93,8 +93,12 @@ export const authService = {
   mfaDisable: (currentPassword: string, code: string) => post<void>('/auth/mfa/disable', { current_password: currentPassword, code }),
 
   async logout(): Promise<void> {
-    localStorage.removeItem('access_token')
-    localStorage.removeItem('refresh_token')
+    try {
+      await post<void>('/auth/logout')
+    } finally {
+      localStorage.removeItem('access_token')
+      localStorage.removeItem('refresh_token')
+    }
   },
 
   async getCurrentUser(): Promise<User> {

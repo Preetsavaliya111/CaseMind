@@ -62,8 +62,8 @@ def get_overview(db: Session, current_user: User) -> dict:
         "indexed_documents": sum(1 for document in documents if document.status == "indexed"),
         "documents_pending": sum(1 for document in documents if document.status in {"uploaded", "processing", "ready_for_indexing"}),
         "documents_failed": sum(1 for document in documents if document.status == "failed"),
-        "ai_questions_asked": db.query(AIInteraction).filter(AIInteraction.organization_id == organization_id).count(),
-        "teammates_invited": db.query(UserInvitation).filter(UserInvitation.organization_id == organization_id).count(),
+        "ai_questions_asked": db.query(AIInteraction).filter(AIInteraction.organization_id == organization_id, *([] if "analytics.organization" in permissions else [AIInteraction.user_id == current_user.id])).count(),
+        "teammates_invited": db.query(UserInvitation).filter(UserInvitation.organization_id == organization_id).count() if "user.invite" in permissions else 0,
         "trends": trends,
         "attention_cases": [{"id": str(case.id), "case_number": case.case_number, "subject": case.subject, "priority": case.priority, "status": case.status, "updated_at": case.updated_at.isoformat()} for case in attention],
     }

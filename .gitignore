@@ -4,6 +4,9 @@
 !.env.example
 !**/.env.example
 
+/backend/storage/documents/
+*.log
+
 # Python
 **/__pycache__/
 **/*.py[cod]
@@ -17,6 +20,12 @@
 **/node_modules/
 **/dist/
 **/coverage/
+**/test-results/
+**/playwright-report/
+**/.release-dist/
+**/*.tsbuildinfo
+**/.env.*
+!**/.env.example
 
 # Local data and editors
 *.db
@@ -24,4 +33,3 @@
 .vscode/
 .idea/
 .DS_Store
-

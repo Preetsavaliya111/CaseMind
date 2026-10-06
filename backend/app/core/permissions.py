@@ -1,4 +1,6 @@
 PERMISSION_DEFINITIONS = {
+    "workflow.view": ("View organization workflows and runs", "workflows"),
+    "workflow.manage": ("Manage organization workflows", "workflows"),
     "ticket.create": ("Create support cases", "tickets"),
     "ticket.view_own": ("View cases created by the user", "tickets"),
     "ticket.view_assigned": ("View assigned cases", "tickets"),
@@ -82,6 +84,7 @@ ROLE_DEFINITIONS = {
         "ai.use", "ai.inspect_citations", "analytics.personal", "analytics.team", "sla.view",
     }),
     "support_manager": ("Support Manager", "Support management console", {
+        "workflow.view", "workflow.manage",
         "ticket.create", "ticket.view_assigned", "ticket.view_team", "ticket.view_department", "ticket.view_all_org", "ticket.reply",
         "ticket.internal_note", "ticket.assign", "ticket.reassign", "ticket.change_priority", "ticket.change_status",
         "ticket.escalate", "ticket.resolve", "ticket.reopen", "customer.view", "customer.manage", "team.view",

@@ -1,4 +1,4 @@
-import { Search, LogOut, User, Bell } from 'lucide-react'
+import { Search, LogOut, User, Bell, GitBranch } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/app/providers'
@@ -7,6 +7,7 @@ import { get } from '@/services/apiClient'
 import { initials } from '@/utils'
 import { notificationService } from '@/features/settings/services/notificationService'
 import { ThemeToggle } from '@/components/common'
+import { hasApiPermission } from '@/permissions'
 
 interface TopbarProps {
   title: string
@@ -91,6 +92,7 @@ export function Topbar({ title }: TopbarProps) {
               <p className="text-xs text-muted-foreground">{user?.email}</p>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
+            {hasApiPermission(user, 'workflow.view') && <DropdownMenuItem onClick={() => navigate('/workflows')}><GitBranch className="h-4 w-4" />Workflows</DropdownMenuItem>}
             <DropdownMenuItem onClick={() => navigate('/settings')}>
               <User className="h-4 w-4" />
               Profile

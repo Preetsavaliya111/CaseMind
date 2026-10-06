@@ -1,5 +1,10 @@
-from fastapi import FastAPI
+import logging
+import time
+from uuid import UUID, uuid4
+
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from app.api import (
     admin,
@@ -17,14 +22,42 @@ from app.api import (
     organization_units,
     search,
     sla,
+    workflows,
 )
 from app.core.config import settings
+import app.utils.logger  # Configure structured process logging before the app starts.
 
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version="1.0.0",
+    docs_url=None if settings.deployed else "/docs",
+    redoc_url=None if settings.deployed else "/redoc",
+    openapi_url=None if settings.deployed else "/openapi.json",
 )
+
+request_logger = logging.getLogger("casemind.http")
+
+
+@app.middleware("http")
+async def request_observability(request: Request, call_next):
+    supplied = request.headers.get("X-Request-ID", "")
+    try:
+        request_id = str(UUID(supplied)) if supplied else str(uuid4())
+    except ValueError:
+        request_id = str(uuid4())
+    started = time.perf_counter()
+    try:
+        response = await call_next(request)
+    except Exception:
+        request_logger.exception("Unhandled request error", extra={"request_id": request_id, "endpoint": request.url.path, "status_code": 500, "latency_ms": round((time.perf_counter() - started) * 1000, 2)})
+        raise
+    response.headers["X-Request-ID"] = request_id
+    request_logger.info("request completed", extra={"request_id": request_id, "organization_id": getattr(request.state, "organization_id", None), "user_id": getattr(request.state, "user_id", None), "endpoint": request.url.path, "status_code": response.status_code, "latency_ms": round((time.perf_counter() - started) * 1000, 2)})
+    return response
+
+if settings.deployed:
+    app.add_middleware(TrustedHostMiddleware, allowed_hosts=settings.trusted_hosts)
 
 app.add_middleware(
     CORSMiddleware,
@@ -110,6 +143,7 @@ app.include_router(
 
 app.include_router(sla.router, prefix="/api/v1/sla", tags=["SLA"])
 app.include_router(notifications.router, prefix="/api/v1/notifications", tags=["Notifications"])
+app.include_router(workflows.router, prefix="/api/v1/workflows", tags=["Workflows"])
 
 @app.get("/")
 def root():
